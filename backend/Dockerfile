@@ -21,4 +21,7 @@ COPY . .
 # 5. EJECUCIÓN
 # Comando que se ejecuta al iniciar el contenedor
 # 'dev' o 'start' deben estar definidos en tu package.json
-CMD ["pnpm", "start"]
+
+CMD ["tail", "-f", "/dev/null"]
+#Le dice al docker que mantenga el contenedor en ejecución sin hacer nada.
+#CMD ["pnpm", "start"]
