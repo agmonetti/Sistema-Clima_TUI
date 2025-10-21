@@ -1,11 +1,3 @@
-
-¡Perfecto! El TPO está funcionando, y la documentación está lista. Tienes razón al preguntarme sobre el uso de npm en el Dockerfile; fue una omisión en la adaptación a pnpm.
-
-Aquí tienes el Dockerfile mínimo y corregido para usar pnpm, además de la justificación técnica de cada línea.
-
-1. Dockerfile Mínimo y Corregido (Para usar pnpm)
-El objetivo de este Dockerfile es ser lo más rápido y liviano posible mientras permite el desarrollo con pnpm.
-
 Guarda esto como ./backend/Dockerfile:
 
 Dockerfile
