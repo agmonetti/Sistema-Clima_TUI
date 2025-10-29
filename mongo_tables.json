@@ -1,0 +1,49 @@
+{
+  "mediciones": {
+
+    "justificacion": "Se REFERENCIA. Justificacion: Es util para datos que son masivos o que tienen una frecuencia de actualización alta.",
+
+    "_id": "ObjectId()",
+    "sensor_id": "// REFERENCIA (VARCHAR/String de 24) a la colección sensores",
+    "timestamp": "ISODate",
+    "temperatura": "n",
+    "humedad": "n"
+
+    }
+    ,
+
+    "sensores": {
+
+    "justificacion": "Se INCRUSTA. Justificacion: Al incrustarlo en el documento mediciones, minimizas el número de consultas a la BD al obtener la ubicación en una sola lectura",
+
+    "_id": "ObjectId",
+    "nombre": "Estación Sur",
+
+    "configuracion": {
+        "tipo_sensor": "T° y Humedad",
+        "fechaInicioMedicion": "ISODate",
+        "estado_sensor": "activo"
+    },
+
+    "ubicacion": { 
+        "pais": "Argentina",
+        "ciudad": "Buenos Aires",
+        "lat": "n",
+        "lon": "n"
+    }
+
+    },
+    
+    "proceso": {
+        "_id": "ObjectId",
+        "nombre": "Alerta de Temperatura Máxima",
+        "descripción": "Emite alerta cuando T° > 35°C",
+        "costo": "n"
+    }
+
+    ,"indices": {
+        "justificacion": "Creo estos indices para las consutalas mas comunes",
+        "uno": "{db.mediciones.createIndex({ sensor_id: 1, timestamp: -1 } )}",
+        "dos": "db.sensores.createIndex( {ubicacion.lon: 1, ubicacion.lat: 1 } )"
+    }
+}
