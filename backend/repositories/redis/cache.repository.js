@@ -1,0 +1,54 @@
+import client from '../../config/redis.js';
+
+// la última medición de un sensor en Redis. Si no se actualiza, expira.
+
+export async function actualizarEstadoSensor(sensorId, { temperatura, humedad }) {
+    const key = `sensor:estado:${sensorId}`;
+    const timestamp = Date.now();
+
+    try {
+        // HSET: Guarda múltiples campos en la clave
+        await client.hSet(key, {
+            ultima_t: temperatura.toString(), // Redis guarda strings
+            ultima_h: humedad.toString(),
+            last_seen: timestamp.toString()
+        });
+
+        // EXPIRE: Reinicia el contador de vida a 5 minutos
+        await client.expire(key, 300); 
+        
+        // Opcional: Log para ver que funciona (luego lo quitamos)
+        // console.log(`🔴 [Redis] Estado actualizado para ${sensorId}`);
+        
+    } catch (error) {
+        console.error(`Error guardando en Redis (Sensor ${sensorId}):`, error);
+        // No lanzamos throw para no detener la ingesta principal si falla el caché
+    }
+}
+
+/**
+ * 2. OBTENER ESTADO (Lectura)
+ * Uso: Para el Dashboard en tiempo real.
+ * Retorna null si el sensor está offline (clave expirada).
+ */
+export async function obtenerEstadoSensor(sensorId) {
+    const key = `sensor:estado:${sensorId}`;
+
+    try {
+        const datos = await client.hGetAll(key);
+        
+        // Si el objeto está vacío (Redis devuelve {} si no existe), retornamos null
+        if (Object.keys(datos).length === 0) {
+            return null; 
+        }
+
+        return {
+            temperatura: parseFloat(datos.ultima_t),
+            humedad: parseFloat(datos.ultima_h),
+            last_seen: new Date(parseInt(datos.last_seen))
+        };
+
+    } catch (error) {
+        throw new Error(`Error leyendo Redis: ${error.message}`);
+    }
+}
