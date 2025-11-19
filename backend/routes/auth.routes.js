@@ -4,7 +4,7 @@ import { register, login } from '../controllers/auth.controller.js';
 
 const router = Router();
 
-// Definición de Endpoints
+
 router.post('/register', register); // POST /api/auth/register
 router.post('/login', login);       // POST /api/auth/login
 

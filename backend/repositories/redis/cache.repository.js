@@ -7,7 +7,7 @@ export async function actualizarEstadoSensor(sensorId, { temperatura, humedad })
     const timestamp = Date.now();
 
     try {
-        // HSET: Guarda múltiples campos en la clave
+        // HSET: permite guardar múltiples campos en la clave
         await client.hSet(key, {
             ultima_t: temperatura.toString(),
             ultima_h: humedad.toString(),
@@ -16,9 +16,6 @@ export async function actualizarEstadoSensor(sensorId, { temperatura, humedad })
 
         // EXPIRE: Reinicia el contador de vida a 5 minutos
         await client.expire(key, 300); 
-        
-        // Opcional: Log para ver que funciona (luego lo quitamos)
-        // console.log(`🔴 [Redis] Estado actualizado para ${sensorId}`);
         
     } catch (error) {
         console.error(`Error guardando en Redis (Sensor ${sensorId}):`, error);
