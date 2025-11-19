@@ -9,7 +9,7 @@ export async function actualizarEstadoSensor(sensorId, { temperatura, humedad })
     try {
         // HSET: Guarda múltiples campos en la clave
         await client.hSet(key, {
-            ultima_t: temperatura.toString(), // Redis guarda strings
+            ultima_t: temperatura.toString(),
             ultima_h: humedad.toString(),
             last_seen: timestamp.toString()
         });
@@ -22,15 +22,10 @@ export async function actualizarEstadoSensor(sensorId, { temperatura, humedad })
         
     } catch (error) {
         console.error(`Error guardando en Redis (Sensor ${sensorId}):`, error);
-        // No lanzamos throw para no detener la ingesta principal si falla el caché
     }
 }
 
-/**
- * 2. OBTENER ESTADO (Lectura)
- * Uso: Para el Dashboard en tiempo real.
- * Retorna null si el sensor está offline (clave expirada).
- */
+//obtener estado sensor.
 export async function obtenerEstadoSensor(sensorId) {
     const key = `sensor:estado:${sensorId}`;
 
