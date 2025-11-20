@@ -10,6 +10,6 @@ app.use(express.json()); //imp porque vamos a enviar json data.
 // Rutas
 app.use('/api/auth', authRoutes);
 app.use('/api/medicion', medicionRoutes);
-app.use
+app.use('/api/transaccion', transaccionRoutes);
 app.get('/', (req, res) => res.send('API funcionando '));
 export default app;
