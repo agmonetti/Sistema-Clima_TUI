@@ -1,125 +1,125 @@
+// ============================================================
+// SEED EXHAUSTIVO MONGODB - SIMULACIÓN IOT REALISTA
+// ============================================================
 
-// Archivo: ./init/mongo/seed-mongo.js
-
-// 1. Usar/Crear la base de datos de trabajo
-// CRÍTICO: Esto asegura que el script sepa dónde insertar.
 db = db.getSiblingDB('clima_db');
 
-print("--- STARTING MONGODB SEEDING ---");
+print("🧹 Limpiando colecciones...");
+db.sensores.deleteMany({});
+db.mediciones.deleteMany({});
+db.proceso.deleteMany({});
+db.conversaciones.deleteMany({});
 
-// ===============================================
-// 2. INSERCIÓN DE SENSORES MAESTROS (5 Documentos)
-// ===============================================
+// ------------------------------------------------------------
+// 1. CATÁLOGO DE 10 PROCESOS (Servicios Variados)
+// ------------------------------------------------------------
+const catalogoProcesos = [
+    // Reportes
+    { nombre: 'Informe Máx/Mín', descripcion: 'Estadísticas extremas', costo: 50.00, codigo: 'INFORME_MAXIMAS_MINIMAS' },
+    { nombre: 'Informe Promedios', descripcion: 'Tendencia media', costo: 40.00, codigo: 'INFORME_PROMEDIOS' },
+    { nombre: 'Análisis de Desviación', descripcion: 'Cálculo de varianza', costo: 60.00, codigo: 'ANALISIS_DESVIACION' },
+    
+    // Monitoreo
+    { nombre: 'Detección de Alertas', descripcion: 'Búsqueda de valores fuera de rango', costo: 25.00, codigo: 'BUSCAR_ALERTAS' },
+    { nombre: 'Consulta Raw Data', descripcion: 'Descarga de datos crudos', costo: 10.00, codigo: 'CONSULTAR_DATOS' },
+    { nombre: 'Estado de Salud', descripcion: 'Verifica batería y conectividad', costo: 15.00, codigo: 'CHECK_SALUD' },
 
-// Array para almacenar los _id de los sensores insertados
-let sensorIds = [];
+    // Acciones Remotas (Simuladas)
+    { nombre: 'Reinicio Remoto', descripcion: 'Reinicia el microcontrolador', costo: 5.00, codigo: 'ACCION_REINICIO' },
+    { nombre: 'Calibración de Sensores', descripcion: 'Ajuste de offset remoto', costo: 100.00, codigo: 'ACCION_CALIBRAR' },
+    { nombre: 'Actualizar Firmware', descripcion: 'Update OTA', costo: 0.00, codigo: 'ACCION_UPDATE' },
 
-const sensores_data = [
-    {
-        nombre: "Estación Central CABA",
-        tipo_sensor: "Temperatura",
-        configuracion: { estado_sensor: "activo", fechaInicioMedicion: new Date("2025-01-01") },
-        ubicacion: { pais: "Argentina", ciudad: "Buenos Aires", lat: -34.6037, lon: -58.3816 }
-    },
-    {
-        nombre: "Estación Córdoba",
-        tipo_sensor: "Humedad",
-        configuracion: { estado_sensor: "activo", fechaInicioMedicion: new Date("2025-01-15") },
-        ubicacion: { pais: "Argentina", ciudad: "Córdoba", lat: -31.4201, lon: -64.1888 }
-    },
-    {
-        nombre: "Estación Patagonia Sur",
-        tipo_sensor: "Temperatura/Humedad",
-        configuracion: { estado_sensor: "falla", fechaInicioMedicion: new Date("2025-02-01") },
-        ubicacion: { pais: "Argentina", ciudad: "Río Gallegos", lat: -51.6225, lon: -69.2181 }
-    },
-    {
-        nombre: "Estación Norte Salta",
-        tipo_sensor: "Temperatura",
-        configuracion: { estado_sensor: "inactivo", fechaInicioMedicion: new Date("2025-03-01") },
-        ubicacion: { pais: "Argentina", ciudad: "Salta", lat: -24.7824, lon: -65.4117 }
-    },
-    {
-        nombre: "Estación San Pablo",
-        tipo_sensor: "Humedad",
-        configuracion: { estado_sensor: "activo", fechaInicioMedicion: new Date("2025-04-01") },
-        ubicacion: { pais: "Brasil", ciudad: "São Paulo", lat: -23.5505, lon: -46.6333 }
-    }
+    // Administrativos
+    { nombre: 'Suscripción Mensual', descripcion: 'Acceso ilimitado por 30 días', costo: 500.00, codigo: 'SUSCRIPCION' }
 ];
 
-db.sensores.insertMany(sensores_data, { ordered: false });
+db.proceso.insertMany(catalogoProcesos);
+print("✅ 10 Procesos insertados.");
 
-// Recuperar los IDs para la referencia en la tabla Mediciones
-db.sensores.find({}).forEach(function(doc) {
-    sensorIds.push(doc._id);
+// ------------------------------------------------------------
+// 2. GENERACIÓN DE 1000 SENSORES (Clusters Geográficos)
+// ------------------------------------------------------------
+
+// Definimos "Zonas Maestras" con coordenadas reales
+const ZONAS = [
+    { ciudad: "Buenos Aires", pais: "Argentina", lat: -34.6037, lon: -58.3816 },
+    { ciudad: "Córdoba", pais: "Argentina", lat: -31.4201, lon: -64.1888 },
+    { ciudad: "Mendoza", pais: "Argentina", lat: -32.8895, lon: -68.8458 },
+    { ciudad: "Santiago", pais: "Chile", lat: -33.4489, lon: -70.6693 },
+    { ciudad: "Montevideo", pais: "Uruguay", lat: -34.9011, lon: -56.1645 }
+];
+
+const TIPOS = ['Temperatura', 'Humedad', 'Temperatura/Humedad'];
+const ESTADOS = ['activo', 'activo', 'activo', 'inactivo', 'falla']; // Más prob. de activo
+
+let sensoresGenerados = [];
+const TOTAL_SENSORES = 1000;
+const SENSORES_POR_ZONA = TOTAL_SENSORES / ZONAS.length; // 200 por ciudad
+
+ZONAS.forEach(zona => {
+    for (let i = 0; i < SENSORES_POR_ZONA; i++) {
+        // Generar variación geográfica pequeña (simular distribución en la ciudad)
+        const latVar = (Math.random() - 0.5) * 0.1; // +/- 0.05 grados
+        const lonVar = (Math.random() - 0.5) * 0.1;
+
+        sensoresGenerados.push({
+            nombre: `Sensor ${zona.ciudad} #${i + 1}`,
+            configuracion: {
+                tipo_sensor: TIPOS[Math.floor(Math.random() * TIPOS.length)],
+                estado_sensor: ESTADOS[Math.floor(Math.random() * ESTADOS.length)],
+                fechaInicioMedicion: new Date("2024-01-01")
+            },
+            ubicacion: {
+                pais: zona.pais,
+                ciudad: zona.ciudad,
+                lat: zona.lat + latVar,
+                lon: zona.lon + lonVar
+            }
+        });
+    }
 });
 
-print(`[INFO] Insertados ${sensorIds.length} Sensores Maestros.`);
+const resultadoSensores = db.sensores.insertMany(sensoresGenerados);
+// Convertimos el objeto de IDs insertados a un array limpio
+const sensorIds = Object.values(resultadoSensores.insertedIds);
+print(`✅ ${sensorIds.length} Sensores insertados en 5 ciudades.`);
 
 
-// ===============================================
-// 3. INSERCIÓN DE MEDICIONES MASIVAS (1000 Documentos)
-// ===============================================
+// ------------------------------------------------------------
+// 3. GENERACIÓN DE 2000+ MEDICIONES (Historial Reciente)
+// ------------------------------------------------------------
 
-const mediciones = [];
-const numMediciones = 1000;
-const now = new Date();
+const medicionesGeneradas = [];
+const AHORA = new Date();
 
-for (let i = 0; i < numMediciones; i++) {
-    const sensorIndex = i % sensorIds.length;
-    const timeOffsetMinutes = i * 2; // Simula una medición cada 2 minutos
-    
-    mediciones.push({
-        // Referencia al ObjectId del sensor
-        sensor_id: sensorIds[sensorIndex], 
-        // Genera timestamps decrecientes (datos recientes)
-        timestamp: new Date(now.getTime() - timeOffsetMinutes * 60000), 
-        temperatura: parseFloat((Math.random() * 30 + 10).toFixed(2)), // 10.00 to 40.00
-        humedad: parseFloat((Math.random() * 50 + 40).toFixed(2))     // 40.00 to 90.00
+// Generamos historial para CADA sensor (para que todos tengan datos)
+sensorIds.forEach((id, index) => {
+    // Simulamos que cada sensor mandó 2 datos recientes
+    // Dato 1: Hace 1 hora
+    medicionesGeneradas.push({
+        sensor_id: id,
+        timestamp: new Date(AHORA.getTime() - 3600000), 
+        temperatura: parseFloat((Math.random() * 30 + 10).toFixed(2)), // 10 a 40 grados
+        humedad: parseFloat((Math.random() * 60 + 30).toFixed(2))      // 30 a 90%
     });
-}
 
-db.mediciones.insertMany(mediciones, { ordered: false });
-print(`[INFO] Insertadas ${numMediciones} Mediciones Masivas.`);
+    // Dato 2: Hace 5 minutos
+    medicionesGeneradas.push({
+        sensor_id: id,
+        timestamp: new Date(AHORA.getTime() - 300000), 
+        temperatura: parseFloat((Math.random() * 30 + 10).toFixed(2)),
+        humedad: parseFloat((Math.random() * 60 + 30).toFixed(2))
+    });
+});
 
-// ===============================================
-// 4. INSERCIÓN DE CATÁLOGOS Y CHAT
-// ===============================================
+// Insertamos algunos casos extremos para probar ALERTAS
+// Sensor de prueba (el primero de la lista) con ALTA TEMPERATURA
+medicionesGeneradas.push({
+    sensor_id: sensorIds[0],
+    timestamp: new Date(),
+    temperatura: 45.5, // ¡ALERTA!
+    humedad: 20.0
+});
 
-// Limpieza previa
-db.proceso.deleteMany({});
-
-const procesos_tpo = [
-    { 
-        nombre: 'Informe Máx/Mín (Anual/Mensual)', 
-        descripcion: 'Informe de humedad y temperaturas máximas y mínimas por ciudades/zonas en rango de fechas.', 
-        costo: 50.00, 
-        codigo: 'INFORME_MAXIMAS_MINIMAS'
-    },
-    { 
-        nombre: 'Informe Promedios (Anual/Mensual)', 
-        descripcion: 'Informe de humedad y temperaturas promedio por ciudades/zonas en rango de fechas.', 
-        costo: 40.00, 
-        codigo: 'INFORME_PROMEDIOS' 
-    },
-    { 
-        nombre: 'Detección de Alertas', 
-        descripcion: 'Búsqueda de alertas de temperaturas y humedad fuera de rango en una zona y fechas.', 
-        costo: 25.00, 
-        codigo: 'BUSCAR_ALERTAS'
-    },
-    { 
-        nombre: 'Consulta en Línea (Datos Crudos)', 
-        descripcion: 'Servicio de consulta directa de información de sensores por ciudad/zona.', 
-        costo: 10.00, 
-        codigo: 'CONSULTAR_DATOS' 
-    },
-    { 
-        nombre: 'Suscripción Periódica Mensual', 
-        descripcion: 'Proceso automático de consultas sobre humedad y temperaturas mensualizadas.', 
-        costo: 100.00, 
-        codigo: 'SUSCRIPCION'
-    }
-];
-
-db.proceso.insertMany(procesos_tpo);
+db.mediciones.insertMany(medicionesGeneradas);
+print(`✅ ${medicionesGeneradas.length} Mediciones insertadas.`);
