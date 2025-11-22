@@ -2,8 +2,8 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import * as UsuarioRepository from '../repositories/postgres/usuario.repository.js';
 
-// Clave secreta para firmar tokens (En producción esto va en .env)
-const JWT_SECRET = process.env.JWT_SECRET || 'mi_secreto_super_seguro';
+
+const JWT_SECRET = process.env.JWT_SECRET;
 
 /**
  * Lógica de REGISTRO

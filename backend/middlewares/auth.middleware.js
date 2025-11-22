@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'mi_secreto_super_seguro';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // validamos el token
 export const verifyToken = (req, res, next) => {
