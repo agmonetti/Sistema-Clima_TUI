@@ -1,7 +1,7 @@
 CREATE TYPE roles AS ENUM (
     'usuario',
     'tecnico',
-    'administrativo'
+    'admin'
 );
 
 CREATE TYPE estado_factura AS ENUM (

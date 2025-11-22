@@ -1,6 +1,6 @@
 import pool from '../../config/postgres.js'; 
 
-//Create
+//Create - Crear usuario
 export async function crearUsuarios({nombre,mail,password,rol_descripcion = 'usuario'}) {
     const client = await pool.connect();
     try {
@@ -43,7 +43,7 @@ export async function crearUsuarios({nombre,mail,password,rol_descripcion = 'usu
 }
 
 /**
- * 2. READ - Buscar por Email
+ * READ - Buscar por Email
  */
 export async function buscarPorEmail(email) {
     const SQL = `
@@ -58,7 +58,7 @@ export async function buscarPorEmail(email) {
     return resultado.rows[0]; // Retorna el usuario o undefined
 }
 
-//3. READ - Buscar por Id
+// READ - Buscar por Id
 
 export async function buscarPorId(id) {
     const SQL = `
@@ -72,6 +72,23 @@ export async function buscarPorId(id) {
     return resultado.rows[0];
 }
 
+//  READ - Buscar todos los usuarios 
+export async function obtenerTodos() {
+    const SQL = `
+        SELECT 
+            u.usuario_id, 
+            u.nombre, 
+            u.mail, 
+            u."isActive", 
+            r.descripcion AS rol
+        FROM "Usuario" u
+        JOIN "Rol" r ON u.rol_id = r.rol_id
+        ORDER BY u.usuario_id ASC;
+    `;
+    
+    const resultado = await pool.query(SQL);
+    return resultado.rows; 
+}
 
 //update de usuarios
 export async function actualizarUsuario(id, { nombre, mail, rol_id, isActive }) {
@@ -112,3 +129,4 @@ export async function eliminarUsuario(id) {
     const resultado = await pool.query(SQL, [id]);
     return resultado.rowCount > 0; // Devuelve true si borró algo
 }
+

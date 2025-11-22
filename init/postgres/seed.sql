@@ -11,7 +11,7 @@ RESTART IDENTITY CASCADE;
 
 -- 2. CONFIGURACIÓN MAESTRA
 INSERT INTO "Rol" ("descripcion") VALUES 
-('usuario'), ('tecnico'), ('administrativo');
+('usuario'), ('tecnico'), ('admin');
 
 INSERT INTO "Metodos_Pago" ("nombre", "isActive") VALUES 
 ('Tarjeta Corporativa', TRUE), ('Transferencia Bancaria', TRUE), ('Bitcoin', FALSE);

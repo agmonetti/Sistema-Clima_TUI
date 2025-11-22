@@ -12,7 +12,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'mi_secreto_super_seguro';
  * 3. Retornar el usuario creado (sin la contraseña).
  */
 export async function register(datosUsuario) {
-    const { nombre, mail, password, rol_descripcion } = datosUsuario;
+    const { nombre, mail, password} = datosUsuario; //ignoramos el rol para prevenir las inyecciones
 
     //revisamos si existe
     const usuarioExistente = await UsuarioRepository.buscarPorEmail(mail);
@@ -24,12 +24,12 @@ export async function register(datosUsuario) {
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt); // Encripta
 
-    // retornamos con la contraseña hasheada
+    // retornamos con la contraseña hasheada y el rol forzado
     const nuevoId = await UsuarioRepository.crearUsuarios({
         nombre,
         mail,
         password: passwordHash,
-        rol_descripcion
+        rol_descripcion: 'usuario' // rol por defecto
     });
 
     return { id: nuevoId, nombre, mail };
