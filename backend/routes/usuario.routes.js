@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { verifyToken, requireRole } from '../middlewares/auth.middleware.js';
-import * as UsuarioController from '../controllers/usuario.controller.js';
+import { UsuarioController}  from '../controllers/usuario.controller.js';
 
 const router = Router();
 
@@ -21,5 +21,9 @@ router.get('/',
     requireRole(['admin']), 
     UsuarioController.getUsers
 );
+
+router.get('/id/:id',
+    UsuarioController.buscarPorId)    
+;
 
 export default router;

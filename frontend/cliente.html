@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel Cliente</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-dark bg-info mb-4">
+        <div class="container">
+            <span class="navbar-brand">👤 Panel Cliente</span>
+            <div class="d-flex align-items-center">
+                <span id="nav-saldo" class="badge bg-light text-dark me-3">Cargando...</span>
+                <span id="nav-usuario" class="text-white me-3 small"></span>
+                <button onclick="auth.logout()" class="btn btn-outline-light btn-sm">Salir</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-dark text-white">💰 Billetera</div>
+                    <div class="card-body">
+                        <h2 id="display-saldo" class="text-center mb-3">$0.00</h2>
+                        <form id="form-recarga">
+                            <div class="input-group mb-3">
+                                <span class="input-group-text">$</span>
+                                <input type="number" id="monto-recarga" class="form-control" required>
+                            </div>
+                            <button type="submit" class="btn btn-success w-100">Recargar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">Aquí irán tus procesos...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/chat.js"></script> 
+    <script src="js/logic.js"></script>
+</body>
+</html>

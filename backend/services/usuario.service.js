@@ -14,3 +14,4 @@ export async function obtenerTodos() {
     const usuarios = await UsuarioRepository.obtenerTodos();
     return usuarios;
 }
+
