@@ -10,6 +10,7 @@ export async function borrarUsuario(id) {
     return true; // Éxito
 }
 
+
 export async function obtenerTodos() {
     const usuarios = await UsuarioRepository.obtenerTodos();
     return usuarios;
