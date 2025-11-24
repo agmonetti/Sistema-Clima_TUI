@@ -12,6 +12,16 @@ export const iniciarPrivado = async (req, res) => {
     }
 };
 
+export const crearGrupo = async (req, res) => {
+    try {
+        const { participantesIds, nombre } = req.body;
+        const grupo = await MensajeriaService.crearGrupo(req.user.id, participantesIds, nombre);
+        res.json(grupo);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+};
+
 export const misChats = async (req, res) => {
     try {
         const chats = await MensajeriaService.listarChats(req.user.id);

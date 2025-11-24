@@ -23,6 +23,7 @@ const chatWidget = {
                 <div id="vista-lista-chats" class="card-body p-0 overflow-auto" style="height: 100%;">
                     <div class="d-grid gap-2 p-2">
                         <button class="btn btn-sm btn-outline-primary" id="btn-nuevo-chat">+ Nuevo Chat</button>
+                        <button class="btn btn-sm btn-outline-success" id="btn-nuevo-grupo">+ Nuevo Grupo</button>
                     </div>
                     <ul class="list-group list-group-flush" id="lista-conversaciones">
                         </ul>
@@ -106,6 +107,39 @@ const chatWidget = {
                 alert("Error al iniciar chat: " + error.message);
             }
         });
+
+        document.getElementById('btn-nuevo-grupo').addEventListener('click', async () => {
+            const nombreGrupo = prompt("Ingresa el nombre del grupo:");
+            if (!nombreGrupo || nombreGrupo.trim() === '') {
+                return alert("Por favor, ingresa un nombre para el grupo.");
+            }
+
+            const idsParticipantesRaw = prompt("Ingresa los IDs de los participantes separados por coma (Ej: 101,102,103):");
+            if (!idsParticipantesRaw || idsParticipantesRaw.trim() === '') {
+                return alert("Por favor, ingresa al menos 2 IDs de participantes.");
+            }
+
+            const participantesIds = idsParticipantesRaw.split(',')
+                .map(id => parseInt(id.trim()))
+                .filter(id => !isNaN(id) && id > 0);
+
+            if (participantesIds.length < 2) {
+                return alert("Un grupo debe tener al menos 2 participantes adicionales (3 en total contigo).");
+            }
+
+            try {
+                const res = await api.post('/mensajeria/grupo', { 
+                    nombre: nombreGrupo.trim(), 
+                    participantesIds 
+                });
+                
+                if (res._id) {
+                    this.abrirChat(res._id, nombreGrupo.trim());
+                }
+            } catch (error) {
+                alert("Error al crear grupo: " + error.message);
+            }
+        });
     },
 
     async cargarListaChats() {
@@ -125,18 +159,24 @@ const chatWidget = {
             const miId = parseInt(miUsuario.usuario_id);
 
             for (const chat of chats) { // Usamos for...of para poder usar await
-                // 1. Identificar al otro miembro
-                const otroId = chat.miembros.find(id => id !== miId);
+                let nombreChat;
                 
-                // 2. OBTENER EL NOMBRE REAL (AWAIT es obligatorio aquí)
-                const nombreChat = chat.nombre 
-                                   || await this.obtenerNombreUsuario(otroId) 
-                                   || `Chat ${chat._id.substr(-4)}`;
+                if (chat.esGrupal) {
+                    // Para grupos, usar el nombre del grupo
+                    nombreChat = chat.nombre || `Grupo ${chat._id.substr(-4)}`;
+                } else {
+                    // Para chats privados, obtener el nombre del otro usuario
+                    const otroId = chat.miembros.find(id => id !== miId);
+                    nombreChat = await this.obtenerNombreUsuario(otroId) || `Chat ${chat._id.substr(-4)}`;
+                }
                 
                 // 3. Renderizar el <li>
                 const li = document.createElement('li');
                 li.className = 'list-group-item list-group-item-action cursor-pointer';
-                li.textContent = nombreChat; // Usamos el nombre resuelto
+                
+                // Agregar icono para distinguir grupos de chats privados
+                const icono = chat.esGrupal ? '👥 ' : '👤 ';
+                li.textContent = icono + nombreChat;
                 li.onclick = () => this.abrirChat(chat._id, nombreChat);
                 lista.appendChild(li);
             }
@@ -171,7 +211,7 @@ const chatWidget = {
                 html += `
                     <div class="${align} mb-2">
                         <div class="d-inline-block p-2 rounded ${color}" style="max-width: 80%; text-align: left;">
-                            ${msg.texto}
+                            ${this.escapeHtml(msg.texto)}
                         </div>
                     </div>
                 `;
@@ -194,6 +234,12 @@ const chatWidget = {
             console.error("Error al obtener nombre de usuario:", userId, error);
             return `Usuario #${userId}`;
         }
+    },
+    
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     },
 };
 
