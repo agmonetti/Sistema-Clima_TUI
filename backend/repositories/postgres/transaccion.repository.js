@@ -2,7 +2,7 @@ import pool from '../../config/postgres.js';
 
 // 1 -  proceso de crear solicutd
 
-export async function crearSolicitudConFactura({ usuarioId, procesoIdMongo, costo }) {
+export async function crearSolicitudConFactura({ usuarioId, procesoIdMongo, costo, parametros }) {
     const client = await pool.connect();
 
     try {
@@ -27,11 +27,11 @@ export async function crearSolicitudConFactura({ usuarioId, procesoIdMongo, cost
 
         // creamos la solcitud del proceso
         const insertSolicitud = `
-            INSERT INTO "Solicitud_Proceso" (usuario_id, proceso_id, "isCompleted")
-            VALUES ($1, $2, FALSE)
+            INSERT INTO "Solicitud_Proceso" (usuario_id, proceso_id, "isCompleted", "parametros")
+            VALUES ($1, $2, FALSE, $3)
             RETURNING solicitud_id
         `;
-        const resSol = await client.query(insertSolicitud, [usuarioId, procesoIdMongo]);
+        const resSol = await client.query(insertSolicitud, [usuarioId, procesoIdMongo, JSON.stringify(parametros || {})]);
         const solicitudId = resSol.rows[0].solicitud_id;
 
         // se crea la factura
@@ -107,6 +107,7 @@ export async function obtenerHistorialUsuario(usuarioId) {
             sp.proceso_id AS proceso_mongo_id, 
             sp."fechaSolicitud", 
             sp."isCompleted",
+            sp."parametros",
             f.factura_id,
             f."estadoFactura",
             h.resultado

@@ -64,6 +64,7 @@ CREATE TABLE IF NOT EXISTS "Solicitud_Proceso" (
     "proceso_id" VARCHAR(24),
     "fechaSolicitud" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "isCompleted" BOOLEAN DEFAULT FALSE,
+    "parametros" JSONB,
     PRIMARY KEY("solicitud_id"),
     -- FK: Depende de "Usuario"
     FOREIGN KEY("usuario_id") REFERENCES "Usuario"("usuario_id")

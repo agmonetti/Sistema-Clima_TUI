@@ -455,6 +455,7 @@ const logic = {
                             <th>Estado</th>
                             <th>Factura</th>
                             <th>Acción</th>
+                            <th>Ver Detalle</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -482,6 +483,12 @@ const logic = {
                                 Ver
                             </button>
                         </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-info py-0" 
+                                onclick="logic.mostrarParametros('${datosSeguros}')">
+                                📋
+                            </button>
+                        </td>
                     </tr>
                 `;
             });
@@ -495,6 +502,92 @@ const logic = {
         }
     },
 
+    mostrarParametros(datosString) {
+        try {
+            const datos = JSON.parse(decodeURIComponent(datosString));
+            const parametros = datos.parametros;
+            
+            if (!parametros) {
+                alert('No hay parámetros registrados para esta solicitud.');
+                return;
+            }
+
+            // Helper function to escape HTML
+            const escapeHtml = (str) => {
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            };
+
+            let detalles = '<div class="list-group">';
+            
+            // Format and display parameters
+            if (parametros.sensorId) {
+                detalles += `<div class="list-group-item"><strong>Sensor ID:</strong> ${escapeHtml(parametros.sensorId)}</div>`;
+            }
+            if (parametros.fechaInicio) {
+                const fechaInicio = new Date(parametros.fechaInicio).toLocaleString();
+                detalles += `<div class="list-group-item"><strong>Fecha Inicio:</strong> ${fechaInicio}</div>`;
+            }
+            if (parametros.fechaFin) {
+                const fechaFin = new Date(parametros.fechaFin).toLocaleString();
+                detalles += `<div class="list-group-item"><strong>Fecha Fin:</strong> ${fechaFin}</div>`;
+            }
+            if (parametros.umbral !== undefined && parametros.umbral !== null) {
+                detalles += `<div class="list-group-item"><strong>Umbral:</strong> ${parametros.umbral}</div>`;
+            }
+            if (parametros.variable) {
+                detalles += `<div class="list-group-item"><strong>Variable:</strong> ${escapeHtml(parametros.variable)}</div>`;
+            }
+            if (parametros.operador) {
+                detalles += `<div class="list-group-item"><strong>Operador:</strong> ${escapeHtml(parametros.operador)}</div>`;
+            }
+            
+            detalles += '</div>';
+            
+            // Create modal dynamically
+            const modalHtml = `
+                <div class="modal fade" id="modalParametros" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header bg-info text-white">
+                                <h5 class="modal-title">Parámetros de la Solicitud</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                ${detalles}
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Remove old modal if exists
+            const oldModal = document.getElementById('modalParametros');
+            if (oldModal) {
+                oldModal.remove();
+            }
+            
+            // Add modal to body
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('modalParametros'));
+            modal.show();
+            
+            // Clean up when modal is hidden
+            document.getElementById('modalParametros').addEventListener('hidden.bs.modal', function() {
+                this.remove();
+            });
+            
+        } catch (e) {
+            console.error(e);
+            alert('Error al mostrar los parámetros.');
+        }
+    },
 
     verDetalle(datosString) {
         try {
