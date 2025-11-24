@@ -430,7 +430,6 @@ const logic = {
     // ==================================================
     // 4. LÓGICA DE CLIENTE: HISTORIAL Y REPORTES
     // ==================================================
-
     async cargarHistorial() {
         const contenedor = document.getElementById('tabla-historial-container');
         if(!contenedor) return;
