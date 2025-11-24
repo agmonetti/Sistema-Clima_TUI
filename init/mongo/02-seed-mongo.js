@@ -15,7 +15,9 @@ db.proceso.insertMany([
     { nombre: 'Informe Promedios', descripcion: 'Tendencia media', costo: 40.00, codigo: 'INFORME_PROMEDIOS' },
     { nombre: 'Detección de Alertas', descripcion: 'Búsqueda de valores fuera de rango', costo: 25.00, codigo: 'BUSCAR_ALERTAS' },
     { nombre: 'Consulta Raw Data', descripcion: 'Descarga de datos crudos', costo: 10.00, codigo: 'CONSULTAR_DATOS' },
-    { nombre: 'Análisis de Desviación', descripcion: 'Cálculo de desviaciones estándar', costo: 35.00, codigo: 'ANALISIS_DESVIACION' }
+    { nombre: 'Análisis de Desviación', descripcion: 'Cálculo de desviaciones estándar', costo: 35.00, codigo: 'ANALISIS_DESVIACION' },
+    { nombre: 'Estado de Salud', descripcion: 'Verifica batería y conectividad', costo: 15.00, codigo: 'CHECK_SALUD' },
+
 ]);
 print("✅ Procesos insertados.");
 

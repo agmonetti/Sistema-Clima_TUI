@@ -11,7 +11,8 @@ const ProcesoSchema = new Schema({
             'INFORME_PROMEDIOS', 
             'BUSCAR_ALERTAS', 
             'CONSULTAR_DATOS', 
-            'ANALISIS_DESVIACION'
+            'ANALISIS_DESVIACION',
+            'CHECK_SALUD'
         ]
     }
 });
