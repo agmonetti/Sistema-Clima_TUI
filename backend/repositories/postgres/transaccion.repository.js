@@ -176,32 +176,34 @@ export async function recargarSaldo(usuarioId, monto) {
     }
 }
 
-
-export async function guardarResultadoExitoso(solicitudId, datosAGuardar) {
+// 4- guardar el resultado exitoso de un proceso
+export async function guardarResultadoExitoso(solicitudId, resultadoObj) {
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
 
-        // A. Marcar como completada
+        // 1. Marcar la solicitud principal como completada
         await client.query(
             'UPDATE "Solicitud_Proceso" SET "isCompleted" = TRUE WHERE solicitud_id = $1', 
             [solicitudId]
         );
 
-        // B. Guardar el JSON con TODO (Resultado + Lo que eligió el usuario)
-        const jsonStr = JSON.stringify(datosAGuardar);
+        // 2. Insertar el registro en el historial con el JSON del resultado
+        // Convertimos el objeto JS a String para guardarlo en la columna TEXT
+        const resultadoStr = JSON.stringify(resultadoObj);
         
         const insertHistorial = `
             INSERT INTO "Historial_Ejecucion_Procesos" (solicitud_id, resultado, "isCompleted")
             VALUES ($1, $2, TRUE)
         `;
-        await client.query(insertHistorial, [solicitudId, jsonStr]);
+        await client.query(insertHistorial, [solicitudId, resultadoStr]);
 
         await client.query('COMMIT');
+        console.log(`✅ Resultado guardado para solicitud #${solicitudId}`);
 
     } catch (error) {
         await client.query('ROLLBACK');
-        throw new Error(`Error finalizando solicitud: ${error.message}`);
+        throw new Error(`Error guardando resultado: ${error.message}`);
     } finally {
         client.release();
     }

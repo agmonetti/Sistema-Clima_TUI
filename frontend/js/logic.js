@@ -427,7 +427,6 @@ const logic = {
         }
     },
 
-
     // ==================================================
     // 4. LÓGICA DE CLIENTE: HISTORIAL Y REPORTES
     // ==================================================
@@ -479,7 +478,7 @@ const logic = {
                         <td>
                             <button class="btn btn-sm btn-primary py-0" 
                                 onclick="logic.verDetalle('${datosSeguros}')">
-                                Ver
+                                Ver 📄
                             </button>
                         </td>
                     </tr>
@@ -494,7 +493,6 @@ const logic = {
             contenedor.innerHTML = `<p class="text-danger">Error cargando historial.</p>`;
         }
     },
-
 
     verDetalle(datosString) {
         try {

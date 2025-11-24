@@ -131,7 +131,6 @@ export async function solicitarProceso({ usuarioId, procesoId, parametros }) {
                 resultadoDelProceso
             );
             }
-  
     return {
         status: 'success',
         ticket: {
@@ -141,8 +140,8 @@ export async function solicitarProceso({ usuarioId, procesoId, parametros }) {
         },
         data: resultadoDelProceso
     };
-
 }
+
 export async function obtenerHistorial(usuarioId) {
     return await TransaccionRepository.obtenerHistorialUsuario(usuarioId);
 }
