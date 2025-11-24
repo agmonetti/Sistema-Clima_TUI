@@ -455,7 +455,6 @@ const logic = {
                             <th>Estado</th>
                             <th>Factura</th>
                             <th>Acción</th>
-                            <th>Ver Detalle</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -483,12 +482,6 @@ const logic = {
                                 Ver
                             </button>
                         </td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-info py-0" 
-                                onclick="logic.verParametros('${datosSeguros}')">
-                                📋
-                            </button>
-                        </td>
                     </tr>
                 `;
             });
@@ -511,103 +504,6 @@ const logic = {
         } catch (e) {
             console.error(e);
             alert("Error al abrir el reporte.");
-        }
-    },
-
-    verParametros(datosString) {
-        try {
-            const datos = JSON.parse(decodeURIComponent(datosString));
-            
-            // Helper function to escape HTML
-            const escapeHtml = (text) => {
-                const div = document.createElement('div');
-                div.textContent = text;
-                return div.innerHTML;
-            };
-            
-            let parametrosHTML = '';
-            
-            // Check if resultado exists and has parametros
-            // Backwards compatible: if old data doesn't have parametros structure, show appropriate message
-            if (datos.resultado) {
-                let resultadoObj;
-                try {
-                    // resultado might be a string or already an object
-                    resultadoObj = typeof datos.resultado === 'string' 
-                        ? JSON.parse(datos.resultado) 
-                        : datos.resultado;
-                } catch (e) {
-                    resultadoObj = null;
-                }
-                
-                if (resultadoObj && resultadoObj.parametros) {
-                    const params = resultadoObj.parametros;
-                    
-                    parametrosHTML = '<dl class="row mb-0">';
-                    
-                    if (params.sensorId) {
-                        parametrosHTML += `
-                            <dt class="col-sm-5">Sensor ID:</dt>
-                            <dd class="col-sm-7"><code>${escapeHtml(params.sensorId)}</code></dd>
-                        `;
-                    }
-                    
-                    if (params.sensorNombre) {
-                        parametrosHTML += `
-                            <dt class="col-sm-5">Sensor:</dt>
-                            <dd class="col-sm-7">${escapeHtml(params.sensorNombre)}</dd>
-                        `;
-                    }
-                    
-                    if (params.fechaInicio) {
-                        const fechaInicioDate = new Date(params.fechaInicio);
-                        const fechaInicio = !isNaN(fechaInicioDate.getTime()) 
-                            ? fechaInicioDate.toLocaleDateString('es-AR', {
-                                year: 'numeric', month: 'long', day: 'numeric'
-                              })
-                            : escapeHtml(String(params.fechaInicio));
-                        parametrosHTML += `
-                            <dt class="col-sm-5">Fecha Inicio:</dt>
-                            <dd class="col-sm-7">${escapeHtml(fechaInicio)}</dd>
-                        `;
-                    }
-                    
-                    if (params.fechaFin) {
-                        const fechaFinDate = new Date(params.fechaFin);
-                        const fechaFin = !isNaN(fechaFinDate.getTime())
-                            ? fechaFinDate.toLocaleDateString('es-AR', {
-                                year: 'numeric', month: 'long', day: 'numeric'
-                              })
-                            : escapeHtml(String(params.fechaFin));
-                        parametrosHTML += `
-                            <dt class="col-sm-5">Fecha Fin:</dt>
-                            <dd class="col-sm-7">${escapeHtml(fechaFin)}</dd>
-                        `;
-                    }
-                    
-                    if (params.umbral !== undefined && params.umbral !== null) {
-                        parametrosHTML += `
-                            <dt class="col-sm-5">Umbral:</dt>
-                            <dd class="col-sm-7">${escapeHtml(String(params.umbral))}</dd>
-                        `;
-                    }
-                    
-                    parametrosHTML += '</dl>';
-                } else {
-                    parametrosHTML = '<p class="text-muted mb-0">No hay parámetros disponibles para esta solicitud.</p>';
-                }
-            } else {
-                parametrosHTML = '<p class="text-muted mb-0">Esta solicitud aún no tiene parámetros registrados.</p>';
-            }
-            
-            // Update modal content and show it
-            document.getElementById('modal-parametros-body').innerHTML = parametrosHTML;
-            const modal = new bootstrap.Modal(document.getElementById('modalParametros'));
-            modal.show();
-            
-        } catch (e) {
-            console.error(e);
-            alert("Error al mostrar los parámetros.");
         }
     },
 
