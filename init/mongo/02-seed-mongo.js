@@ -24,13 +24,6 @@ const catalogoProcesos = [
     { nombre: 'Consulta Raw Data', descripcion: 'Descarga de datos crudos', costo: 10.00, codigo: 'CONSULTAR_DATOS' },
     { nombre: 'Estado de Salud', descripcion: 'Verifica batería y conectividad', costo: 15.00, codigo: 'CHECK_SALUD' },
 
-    // Acciones Remotas (Simuladas)
-    { nombre: 'Reinicio Remoto', descripcion: 'Reinicia el microcontrolador', costo: 5.00, codigo: 'ACCION_REINICIO' },
-    { nombre: 'Calibración de Sensores', descripcion: 'Ajuste de offset remoto', costo: 100.00, codigo: 'ACCION_CALIBRAR' },
-    { nombre: 'Actualizar Firmware', descripcion: 'Update OTA', costo: 0.00, codigo: 'ACCION_UPDATE' },
-
-    // Administrativos
-    { nombre: 'Suscripción Mensual', descripcion: 'Acceso ilimitado por 30 días', costo: 500.00, codigo: 'SUSCRIPCION' }
 ];
 
 db.proceso.insertMany(catalogoProcesos);
@@ -91,7 +84,52 @@ const sensorIds = Object.values(resultadoSensores.insertedIds);
 print(`✅ ${sensorIds.length} Sensores REALISTAS insertados.`);
 
 // ------------------------------------------------------------
-// 3. GENERACIÓN DE 2000+ MEDICIONES (Historial Reciente)
+// 3. GENERACIÓN DE MEDICIONES (Ajustado para Pruebas)
+// ------------------------------------------------------------
+
+const medicionesGeneradas = [];
+const AHORA = new Date();
+// Definimos una fecha tope atrás (ej: 1 de Enero de 2023)
+const FECHA_INICIO_HISTORIAL = new Date('2023-01-01');
+
+print("⏳ Generando mediciones variadas (2023-2025)...");
+
+sensorIds.forEach((id) => {
+    // IDEA 1: Bajamos a 3 mediciones fijas por sensor (fácil de leer)
+    const cantidadMediciones = 2; 
+
+    for (let i = 0; i < cantidadMediciones; i++) {
+        // IDEA 2: Fechas variadas (Años y meses distintos)
+        // Generamos un tiempo aleatorio entre Enero 2023 y Hoy
+        const tiempoAleatorio = new Date(
+            FECHA_INICIO_HISTORIAL.getTime() + 
+            Math.random() * (AHORA.getTime() - FECHA_INICIO_HISTORIAL.getTime())
+        );
+
+        medicionesGeneradas.push({
+            sensor_id: id,
+            timestamp: tiempoAleatorio,
+            // Temperaturas y Humedad (Mantenemos la variación lógica)
+            temperatura: parseFloat((Math.random() * 25 + 10).toFixed(2)), // 10°C a 35°C
+            humedad: parseFloat((Math.random() * 60 + 30).toFixed(2))      // 30% a 90%
+        });
+    }
+});
+
+// Caso extremo para probar alertas (opcional, lo dejamos para que funcione esa feature)
+medicionesGeneradas.push({
+    sensor_id: sensorIds[0],
+    timestamp: new Date(), // Este sí es de HOY
+    temperatura: 48.5,
+    humedad: 15.0
+});
+
+db.mediciones.insertMany(medicionesGeneradas);
+print(`✅ ${medicionesGeneradas.length} Mediciones insertadas (Rango 2023-Today).`);
+
+/*
+// ------------------------------------------------------------
+// 3. GENERACIÓN DE 5-25 MEDICIONES (Historial Reciente)
 // ------------------------------------------------------------
 
 const medicionesGeneradas = [];
@@ -132,3 +170,4 @@ medicionesGeneradas.push({
 
 db.mediciones.insertMany(medicionesGeneradas);
 print(`✅ ${medicionesGeneradas.length} Mediciones insertadas.`);
+*/

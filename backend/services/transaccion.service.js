@@ -25,7 +25,6 @@ export async function solicitarProceso({ usuarioId, procesoId, parametros }) {
     let resultadoDelProceso = null;
 
     try {
-        console.log("🔀 Ejecutando switch para código:", proceso.codigo);
         switch (proceso.codigo) {
             case 'INFORME_MAXIMAS_MINIMAS':
                 if (!parametros?.sensorId || !parametros?.fechaInicio || !parametros?.fechaFin) {
@@ -64,6 +63,24 @@ export async function solicitarProceso({ usuarioId, procesoId, parametros }) {
                 }
                 break;
 
+            case 'ANALISIS_DESVIACION':
+                if (!parametros?.sensorId || !parametros?.fechaInicio || !parametros?.fechaFin) {
+                    throw new Error('Faltan parámetros: sensorId, fechaInicio, fechaFin');
+                }
+                const rawDesv = await MedicionRepository.obtenerReporteRango(
+                    parametros.sensorId,
+                    parametros.fechaInicio,
+                    parametros.fechaFin
+                );
+
+                if (rawDesv) {
+                    resultadoDelProceso = {
+                        stdDev: rawDesv.stdDev, // Solo devolvemos la desviación
+                        cantMediciones: rawDesv.cantMediciones
+                    };
+                }
+                break;
+
             case 'CONSULTAR_DATOS':
                  if (!parametros?.sensorId) throw new Error('Falta parámetro: sensorId');
                 resultadoDelProceso = await MedicionRepository.obtenerUltimasMediciones(parametros.sensorId);
@@ -83,11 +100,16 @@ export async function solicitarProceso({ usuarioId, procesoId, parametros }) {
                  break;
 
             default:
-                resultadoDelProceso = { mensaje: "Proceso registrado. Ejecución diferida." };
+                //caso de estado de sensor
+                const salud = await MedicionRepository.obtenerEstadoSensor(parametros.sensorId);
+                
+                resultadoDelProceso = {
+                    "Sensor ": salud.sensor,
+                    "Estado Actual": salud.estado ? salud.estado.toUpperCase() : 'DESCONOCIDO'
+                };
                 break;
         }
-        console.log("📊 RESULTADO BRUTO DE MONGO:", resultadoDelProceso);
-
+    
     } catch (logicError) {
         // si fallo la ejecucion del proceso, se reembolsa al usuario
         console.error("Falló la ejecución. Iniciando reembolso...", logicError.message);

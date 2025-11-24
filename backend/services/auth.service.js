@@ -53,6 +53,9 @@ export async function login({ mail, password }) {
     if (!usuario) {
         throw new Error('Usuario no existente');
     }
+    if (!usuario.isActive) {
+        throw new Error('Acceso denegado: Esta cuenta ha sido eliminada o desactivada.');
+    }
 
     // validamos que la contraseña coincida, previo se desencripta
     const esPasswordValido = await bcrypt.compare(password, usuario.contraseña);

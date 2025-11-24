@@ -54,77 +54,89 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // 1. Recuperar datos
             const reporteStr = localStorage.getItem('temp_reporte_detalle');
             
             if (!reporteStr) {
-                document.getElementById('contenido-visual').innerHTML = '<div class="alert alert-warning w-100">No hay datos para mostrar.</div>';
+                document.getElementById('contenido-visual').innerHTML = '<div class="alert alert-warning w-100">No hay datos.</div>';
                 return;
             }
 
             const reporte = JSON.parse(reporteStr);
 
-            // 2. Llenar Encabezado
             document.getElementById('reporte-titulo').textContent = `Solicitud #${reporte.solicitud_id || 'N/A'}`;
             document.getElementById('json-display').textContent = JSON.stringify(reporte, null, 2);
 
-            // 3. PARSEO INTELIGENTE DEL RESULTADO
             let resultado = reporte.resultado;
             
-            // Si viene como string (Postgres lo guarda así), lo parseamos a objeto
+            // Parsear si viene como string desde Postgres
             if (typeof resultado === 'string') {
-                try {
-                    resultado = JSON.parse(resultado);
-                } catch (e) {
-                    // Si no es JSON, es un mensaje de texto simple
-                }
+                try { resultado = JSON.parse(resultado); } catch (e) {}
             }
 
             const contenedor = document.getElementById('contenido-visual');
-            contenedor.innerHTML = ''; // Limpiar
+            contenedor.innerHTML = ''; 
 
-            // 4. RENDERIZADO SEGÚN EL TIPO DE DATO
+            // --- LÓGICA DE RENDERIZADO CORREGIDA ---
+
+            // 1. Si es nulo o vacío
             if (!resultado) {
                 contenedor.innerHTML = '<div class="col-12"><div class="alert alert-info">Sin resultados visuales.</div></div>';
             
+            // 2. CASO ARRAY (Tablas)
+            } else if (Array.isArray(resultado)) {
+                if (resultado.length === 0) {
+                    contenedor.innerHTML = '<div class="col-12"><div class="alert alert-warning">Consulta vacía.</div></div>';
+                } else {
+                    const columnas = Object.keys(resultado[0]).filter(k => k !== '_id' && k !== '__v');
+                    
+                    let tablaHTML = `
+                        <div class="col-12"><div class="table-responsive">
+                        <table class="table table-striped table-hover border bg-white">
+                            <thead class="table-dark"><tr>${columnas.map(c => `<th class="text-capitalize">${c}</th>`).join('')}</tr></thead>
+                            <tbody>
+                    `;
+
+                    resultado.forEach(fila => {
+                        tablaHTML += '<tr>';
+                        columnas.forEach(col => {
+                            let valor = fila[col];
+                            if (typeof valor === 'number' && !Number.isInteger(valor)) valor = valor.toFixed(2);
+                            else if (typeof valor === 'string' && valor.includes('T') && valor.endsWith('Z')) valor = new Date(valor).toLocaleString();
+                            else if (typeof valor === 'object' && valor !== null) valor = valor.nombre || JSON.stringify(valor);
+                            tablaHTML += `<td>${valor}</td>`;
+                        });
+                        tablaHTML += '</tr>';
+                    });
+                    tablaHTML += '</tbody></table></div></div>';
+                    contenedor.innerHTML = tablaHTML;
+                }
+
+            // 3. CASO OBJETO (Tarjetas)
             } else if (typeof resultado === 'object') {
-                // DICCIONARIO DE ETIQUETAS AMIGABLES
-                // Convertimos las claves técnicas de Mongo a español
                 const etiquetas = {
                     'tempMaxima': '🌡️ Temp. Máxima',
                     'tempMinima': '🥶 Temp. Mínima',
                     'tempPromedio': '📊 Promedio',
-                    'cantMediciones': '📡 Mediciones Analizadas',
-                    'humedadPromedio': '💧 Humedad Promedio',
-                    '_id': 'Agrupación'
+                    'cantMediciones': '📡 Mediciones',
+                    'stdDev': '📉 Desviación Std'
                 };
 
-                // Recorremos las claves del objeto
                 for (const [key, value] of Object.entries(resultado)) {
-                    if (key === '_id' && value === null) continue; // Ignorar el ID null de Mongo
-
-                    let valorBonito = value;
+                    if (key === '_id' || value === null) continue;
+                    let valor = value;
+                    if (typeof value === 'number' && !Number.isInteger(value)) valor = value.toFixed(2) + (key.includes('temp') ? '°' : '');
                     
-                    // Si es un número largo, lo redondeamos
-                    if (typeof value === 'number' && !Number.isInteger(value)) {
-                        valorBonito = value.toFixed(2) + '°'; // Agregamos grados
-                    }
-
-                    const etiqueta = etiquetas[key] || key; // Usar nombre bonito o el original
-
-                    // Crear tarjeta HTML
-                    const col = document.createElement('div');
-                    col.className = 'col-md-6';
-                    col.innerHTML = `
-                        <div class="dato-card">
-                            <div class="dato-titulo">${etiqueta}</div>
-                            <div class="dato-valor">${valorBonito}</div>
-                        </div>
-                    `;
-                    contenedor.appendChild(col);
+                    contenedor.innerHTML += `
+                        <div class="col-md-6">
+                            <div class="dato-card">
+                                <div class="dato-titulo">${etiquetas[key] || key}</div>
+                                <div class="dato-valor">${valor}</div>
+                            </div>
+                        </div>`;
                 }
+
+            // 4. CASO TEXTO
             } else {
-                // Si es texto plano
                 contenedor.innerHTML = `<div class="col-12"><div class="alert alert-light border">${resultado}</div></div>`;
             }
         });

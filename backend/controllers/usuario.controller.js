@@ -38,3 +38,28 @@ export const buscarPorId = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+export const revivirUsuario = async (req, res) => {
+    try {
+        const { id } = req.params;
+        await UsuarioService.revivirUsuario(id);
+        res.status(200).json({ message: 'Usuario revivido correctamente' });
+    } catch (error) {
+        res.status(404).json({ error: error.message });
+    }
+};
+
+// ... (tus otras funciones) ...
+
+export const darseDeBaja = async (req, res) => {
+    try {
+        const miId = req.user.id; 
+        await UsuarioService.eliminarPropiaCuenta(miId);
+
+        res.status(200).json({ message: 'Cuenta eliminada correctamente' });
+
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+};
+

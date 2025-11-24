@@ -54,3 +54,14 @@ export const obtenerCiudades = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+export const verHistorialSensor = async (req, res) => {
+    try {
+        const { sensorId } = req.params;
+        const historial = await MedicionRepository.obtenerUltimasMediciones(sensorId);
+        res.json(historial);
+    } catch (error) {
+        console.error('Error historial sensor:', error);
+        res.status(500).json({ error: error.message });
+    }
+};

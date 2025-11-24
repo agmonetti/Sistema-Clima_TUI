@@ -130,3 +130,8 @@ export async function eliminarUsuario(id) {
     return resultado.rowCount > 0; // Devuelve true si borró algo
 }
 
+export async function revivirUsuario(id) {
+    const SQL = 'UPDATE "Usuario" SET "isActive" = TRUE WHERE usuario_id = $1';
+    const resultado = await pool.query(SQL, [id]);
+    return resultado.rowCount > 0;
+}

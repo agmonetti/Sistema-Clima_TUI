@@ -13,6 +13,21 @@ export async function crearMedicion(datos) {
     }
 }
 
+export async function obtenerEstadoSensor(sensorId) {
+    try {
+        const sensor = await Sensor.findById(sensorId, 'nombre configuracion.estado_sensor');
+        if (!sensor) {
+            throw new Error('Sensor no encontrado');
+        }
+        return {
+            sensor: sensor.nombre,
+            estado: sensor.configuracion.estado_sensor 
+        };
+    } catch (error) {
+        throw new Error(`Error obteniendo estado del sensor: ${error.message}`);
+    }
+}
+
 //2- obtener el reporte de un sensor en un rango de fechas
 export async function obtenerReporteRango(sensorId, fechaInicio, fechaFin) {
     try {
@@ -33,7 +48,8 @@ export async function obtenerReporteRango(sensorId, fechaInicio, fechaFin) {
                     _id: null, 
                     tempPromedio: { $avg: "$temperatura" },
                     tempMaxima: { $max: "$temperatura" },   
-                    tempMinima: { $min: "$temperatura" },   
+                    tempMinima: { $min: "$temperatura" },
+                    stdDev: { $stdDevPop: "$temperatura" }, // Desviación estándar poblacional   
                     cantMediciones: { $sum: 1 }             
                 }
             }
@@ -118,21 +134,17 @@ export async function listarSensores(ciudad) {
     try {
         const filtro = {};
         if (ciudad) {
-            // Filtramos por el campo incrustado 'ubicacion.ciudad'
             filtro['ubicacion.ciudad'] = ciudad;
         }
-
-        // Traemos hasta 100 si hay filtro, sino 20 genéricos
         const limite = ciudad ? 100 : 20;
 
-        return await Sensor.find(filtro, 'nombre ubicacion _id')
+       return await Sensor.find(filtro, 'nombre ubicacion configuracion.tipo_sensor _id')
             .limit(limite)
             .lean();
     } catch (error) {
         throw new Error(`Error listando sensores: ${error.message}`);
     }
 }
-
 // NUEVA FUNCIÓN: Obtener lista de ciudades únicas para el combo
 export async function listarCiudades() {
     try {

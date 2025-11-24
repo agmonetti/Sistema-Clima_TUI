@@ -18,6 +18,9 @@ const logic = {
         try {
             const res = await api.get('/usuarios'); 
             if (res.error) throw new Error(res.error); 
+
+            const miUsuario = JSON.parse(localStorage.getItem('usuario'));
+            const miId = String(miUsuario.usuario_id); // Asegurar que sea número
             
             let html = `
                 <table class="table table-hover table-sm">
@@ -28,22 +31,58 @@ const logic = {
             `;
 
             res.forEach(u => {
-                html += `
-                    <tr>
-                        <td>${u.usuario_id}</td>
-                        <td>${u.nombre}</td>
-                        <td>${u.mail}</td>
-                        <td>${u.rol}</td>
-                        <td>
-                            <button class="btn btn-success btn-sm" onclick="logic.contactarUsuario(${u.usuario_id})">💬</button>
-                            <button class="btn btn-danger btn-sm" 
-                                onclick="logic.eliminarUsuario(${u.usuario_id})"
-                                ${u.rol === 'admin' ? 'disabled' : ''}>
-                                🗑️
-                            </button>
-                        </td>
-                    </tr>
-                `;
+            const esMiUsuario = String(u.usuario_id) === miId;
+            
+            // LÓGICA VISUAL DE ESTADO
+            let claseFila = '';
+            let nombreMostrar = u.nombre;
+            let botonAccion = '';
+
+            if (esMiUsuario) {
+                nombreMostrar = `<strong>${u.nombre} (Usted)</strong>`;
+                claseFila = 'table-primary'; // Azul para mí
+                // Yo no me puedo borrar ni reactivar a mí mismo aquí
+                botonAccion = `<button class="btn btn-secondary btn-sm" disabled>🔒</button>`;
+            
+            } else if (!u.isActive) {
+                // CASO INACTIVO
+                claseFila = 'table-secondary text-muted'; // Gris
+                nombreMostrar = `${u.nombre} (Inactivo)`;
+                // Botón VERDE para Reactivar
+                botonAccion = `
+                    <button class="btn btn-success btn-sm" 
+                        onclick="logic.revivirUsuario(${u.usuario_id})" 
+                        title="Revivir Usuario">
+                        ♻️ Revivir
+                    </button>`;
+            } else {
+                // CASO ACTIVO NORMAL
+                // Botón ROJO para Eliminar
+                // Validamos que no sea admin para no mostrar el botón al cuete (aunque el back protege)
+                const disabled = (u.rol === 'admin') ? 'disabled' : '';
+                botonAccion = `
+                    <button class="btn btn-danger btn-sm" 
+                        onclick="logic.eliminarUsuario(${u.usuario_id})" 
+                        ${disabled} title="Eliminar Usuario">
+                        🗑️
+                    </button>`;
+            }
+
+            html += `
+                <tr class="${claseFila}">
+                    <td>${u.usuario_id}</td>
+                    <td>${nombreMostrar}</td>
+                    <td>${u.mail}</td>
+                    <td><span class="badge bg-light text-dark border">${u.rol}</span></td>
+                    <td>
+                        <button class="btn btn-primary btn-sm me-1" 
+                            onclick="logic.contactarUsuario(${u.usuario_id})"
+                            ${esMiUsuario ? 'disabled' : ''}>💬</button>
+                        
+                        ${botonAccion}
+                    </td>
+                </tr>
+            `;
             });
 
             html += '</tbody></table>';
@@ -51,6 +90,32 @@ const logic = {
 
         } catch (error) {
             contenedor.innerHTML = `<div class="alert alert-danger p-2">Error: ${error.message}</div>`;
+        }
+    },
+
+    async revivirUsuario(id) {
+        if (!confirm(`¿Deseas revivir el acceso al usuario ID ${id}?`)) return;
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`http://localhost:3000/api/usuarios/${id}/revivir`, {
+                method: 'PATCH',
+                headers: { 
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (res.ok) {
+                alert('Usuario revivido exitosamente');
+                this.cargarUsuarios(); 
+            } else {
+                const data = await res.json();
+                throw new Error(data.error || 'Error del servidor');
+            }
+            
+        } catch (error) {
+            console.error(error);
+            alert('Error al revivir: ' + error.message);
         }
     },
 
@@ -62,6 +127,25 @@ const logic = {
             this.cargarUsuarios(); 
         } catch (error) {
             alert('Error al eliminar: ' + error.message);
+        }
+    },
+    async darseDeBaja() {
+        const confirmacion = prompt('Estas seguro de eliminar tu cuenta?\n\nEscribe "ELIMINAR" para confirmar.\n(Esta accion desactiva tu acceso).');
+        
+        if (confirmacion !== "ELIMINAR") {
+            if (confirmacion) alert("Cancelado: escribir ELIMINAR.");
+            return;
+        }
+
+        try {
+            const res = await api.delete('/usuarios/me');
+            
+            if (res.message) {
+                alert("Tu cuenta ha sido eliminada");
+                auth.logout(); // Sacamos al usuario y borramos token
+            }
+        } catch (error) {
+            alert("No se pudo eliminar la cuenta: " + error.message);
         }
     },
 
@@ -152,56 +236,101 @@ const logic = {
             contenedor.innerHTML = `<p class="text-danger">Error: ${error.message}</p>`;
         }
     },
+    
+    sensoresCache: [],
 
-    // --- MODAL: Paso 1 (Abrir y cargar Ciudades) ---
     async abrirModalSolicitud(idProceso, nombreProceso, costo) {
-        // 1. Resetear formulario y UI
+        // 1. Resetear UI
         document.getElementById('solicitud-proceso-id').value = idProceso;
         document.getElementById('modal-mensaje-costo').innerHTML = 
-            `Vas a contratar: <strong>${nombreProceso}</strong><br>Costo final: <strong>$${costo}</strong>`;
+            `Contratar: <strong>${nombreProceso}</strong><br>Costo: <strong>$${costo}</strong>`;
         
-        // 2. Fechas por defecto (Última semana)
+        // Resetear Fechas (Semana pasada)
         const hoy = new Date();
         const haceSemana = new Date();
         haceSemana.setDate(hoy.getDate() - 7);
-        
         document.getElementById('solicitud-inicio').value = haceSemana.toISOString().slice(0, 10);
         document.getElementById('solicitud-fin').value = hoy.toISOString().slice(0, 10);
 
-        // 3. Resetear Selects
+        // 2. Cargar Ciudades (Una sola vez)
         const selectCiudad = document.getElementById('solicitud-ciudad');
         const selectSensor = document.getElementById('solicitud-sensor');
         
-        selectSensor.innerHTML = '<option selected disabled>Primero elige una ciudad</option>';
+        // Reset selects
+        selectSensor.innerHTML = '<option disabled selected>Elige Ciudad y Tipo</option>';
         selectSensor.disabled = true;
-        selectCiudad.innerHTML = '<option selected disabled>Cargando ciudades...</option>';
+        this.sensoresCache = []; // Limpiar caché
 
-        // 4. Mostrar Modal
-        const modalEl = document.getElementById('modalSolicitud');
-        const modal = new bootstrap.Modal(modalEl);
-        modal.show();
-
-        // 5. Cargar Ciudades desde Backend
         try {
             const ciudades = await api.get('/medicion/ciudades');
-            
             selectCiudad.innerHTML = '<option value="" selected disabled>Selecciona Ciudad</option>';
-            
-            if (ciudades.length === 0) {
-                selectCiudad.innerHTML = '<option disabled>No hay ciudades</option>';
-                return;
-            }
-
             ciudades.forEach(c => {
                 const opt = document.createElement('option');
                 opt.value = c;
                 opt.text = c;
                 selectCiudad.appendChild(opt);
             });
+            
+            new bootstrap.Modal(document.getElementById('modalSolicitud')).show();
+        } catch (e) {
+            alert("Error cargando ciudades");
+        }
+    },
+// --- LÓGICA SEGURA DE FILTRADO ---
+    async cargarSensoresFiltrados() {
+        const ciudad = document.getElementById('solicitud-ciudad').value;
+        const tipo = document.getElementById('solicitud-tipo').value;
+        const selectSensor = document.getElementById('solicitud-sensor');
+        
+        if (!ciudad) return; 
+
+        selectSensor.innerHTML = '<option>Cargando...</option>';
+        selectSensor.disabled = true;
+
+        try {
+            // 1. Pedimos datos al backend
+            const sensores = await api.get(`/medicion/sensores?ciudad=${encodeURIComponent(ciudad)}`);
+            
+            // 2. Filtramos en memoria (CON PROTECCIÓN)
+            const sensoresFiltrados = sensores.filter(s => {
+                // Si elegimos 'todos', pasan todos
+                if (tipo === 'todos') return true;
+                
+                // PROTECCIÓN: Si el sensor no tiene config, asumimos que no pasa el filtro
+                // Esto evita el error "Cannot read properties of undefined"
+                const tipoSensor = s.configuracion?.tipo_sensor; 
+                
+                return tipoSensor.toLowerCase() === tipo.toLowerCase();
+            });
+
+            // 3. Renderizar
+            selectSensor.innerHTML = '';
+            
+            if (sensoresFiltrados.length === 0) {
+                selectSensor.innerHTML = '<option disabled selected>No hay sensores de este tipo</option>';
+            } else {
+                // Opción por defecto
+                const defaultOpt = document.createElement('option');
+                defaultOpt.text = `Seleccione (${sensoresFiltrados.length} disponibles)`;
+                defaultOpt.value = "";
+                defaultOpt.selected = true;
+                defaultOpt.disabled = true;
+                selectSensor.appendChild(defaultOpt);
+
+                sensoresFiltrados.forEach(s => {
+                    const opt = document.createElement('option');
+                    opt.value = s._id;
+                    // Mostramos el tipo para que veas que funcionó
+                    const tipoMuestra = s.configuracion?.tipo_sensor || 'Desconocido';
+                    opt.text = `${s.nombre} [${tipoMuestra}]`;
+                    selectSensor.appendChild(opt);
+                });
+                selectSensor.disabled = false;
+            }
 
         } catch (e) {
-            selectCiudad.innerHTML = '<option disabled>Error cargando ciudades</option>';
-            console.error(e);
+            console.error(e); // Ver error en consola
+            selectSensor.innerHTML = '<option disabled>Error al cargar</option>';
         }
     },
 
@@ -401,5 +530,121 @@ const logic = {
         } catch (e) {
             alert("Error contactando usuario: " + e.message);
         }
-    }
+    },
+
+// ==================================================
+    // 6. LÓGICA DE TÉCNICO: INGESTA MANUAL
+    // ==================================================
+
+    async initTecnico() {
+        const select = document.getElementById('tec-sensor-id');
+        if (!select) return;
+
+        select.addEventListener('change', () => {
+            this.cargarHistorialSensor(select.value);
+        });
+
+        try {
+            // Reutilizamos el endpoint que ya creamos para el cliente (/api/medicion/sensores)
+            const sensores = await api.get('/medicion/sensores'); 
+            
+            select.innerHTML = '<option value="" selected disabled>Seleccione un sensor</option>';
+            
+            if (!sensores || sensores.length === 0) {
+                select.innerHTML = '<option disabled>No hay sensores registrados</option>';
+            } else {
+                sensores.forEach(s => {
+                    const option = document.createElement('option');
+                    option.value = s._id; // ID de Mongo
+                    // Mostramos Nombre y Ciudad para identificarlo fácil
+                    option.text = `${s.nombre} (${s.ubicacion.ciudad})`;
+                    select.appendChild(option);
+                });
+            }
+        } catch (error) {
+            console.error(error);
+            select.innerHTML = '<option disabled>Error cargando lista</option>';
+        }
+        
+        // Listener del formulario
+        const form = document.getElementById('form-medicion');
+        if (form) {
+            form.addEventListener('submit', (e) => this.enviarMedicionManual(e));
+        }
+    },
+
+    async enviarMedicionManual(e) {
+        e.preventDefault();
+        
+        const sensorId = document.getElementById('tec-sensor-id').value;
+        const temp = parseFloat(document.getElementById('tec-temperatura').value);
+        const hum = parseFloat(document.getElementById('tec-humedad').value);
+        const fechaInput = document.getElementById('tec-fecha').value;
+        if (!sensorId) return alert("Debes elegir un sensor.");
+
+        // Payload para el backend
+        const payload = {
+            sensor_id: sensorId,
+            temperatura: temp,
+            humedad: hum
+        };
+        // Si el usuario eligió fecha, la agregamos. Si no, el backend pondrá Date.now()
+        if (fechaInput) {
+            payload.timestamp = new Date(fechaInput).toISOString();
+        }
+
+        try {
+            // Llamada al endpoint de ingesta (Backend/Mongo)
+            const res = await api.post('/medicion/registro', payload);
+            
+            if (res.message) {
+                alert(`Medición registrada con éxito.`);
+                // Limpiar campos numéricos pero dejar el sensor seleccionado para carga rápida
+                document.getElementById('tec-temperatura').value = '';
+                document.getElementById('tec-humedad').value = '';
+                document.getElementById('tec-temperatura').focus();
+                document.getElementById('tec-fecha').value = '';
+
+                this.cargarHistorialSensor(sensorId);
+            }
+        } catch (error) {
+            alert("Error al enviar medición: " + error.message);
+        }
+    },
+
+    async cargarHistorialSensor(sensorId) {
+        const tbody = document.getElementById('tabla-mediciones-tecnico');
+        tbody.innerHTML = '<tr><td colspan="3">Cargando...</td></tr>';
+
+        try {
+            const mediciones = await api.get(`/medicion/historial/${sensorId}`);
+            
+            tbody.innerHTML = '';
+
+            if (!mediciones || mediciones.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="text-muted">No hay mediciones registradas.</td></tr>';
+                return;
+            }
+
+            mediciones.forEach(m => {
+                const fecha = new Date(m.timestamp).toLocaleString();
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${fecha}</td>
+                        <td><strong>${m.temperatura}</strong></td>
+                        <td>${m.humedad}</td>
+                    </tr>
+                `;
+            });
+
+        } catch (error) {
+            tbody.innerHTML = `<tr><td colspan="3" class="text-danger">Error: ${error.message}</td></tr>`;
+        }
+    },
+
+    // Helper para el botón de refrescar
+    actualizarTablaTecnico() {
+        const id = document.getElementById('tec-sensor-id').value;
+        if (id) this.cargarHistorialSensor(id);
+    },
 };

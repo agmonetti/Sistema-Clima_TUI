@@ -23,7 +23,7 @@ const corsOptions = {
       callback(new Error('Acceso denegado por política de CORS'));
     }
   },
-  methods: ['GET', 'POST', 'PUT', 'DELETE'], // metodos permitidos
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], // metodos permitidos
   allowedHeaders: ['Content-Type', 'Authorization'], 
   credentials: true
 };

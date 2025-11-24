@@ -12,6 +12,9 @@
             <div class="d-flex align-items-center">
                 <span id="nav-saldo" class="badge bg-light text-dark me-3">Cargando...</span>
                 <span id="nav-usuario" class="text-white me-3 small"></span>
+                <button onclick="logic.darseDeBaja()" class="btn btn-danger btn-sm me-2" title="Eliminar mi cuenta">
+                    Eliminar cuenta
+                </button>
                 <button onclick="auth.logout()" class="btn btn-outline-light btn-sm">Salir</button>
             </div>
         </div>
@@ -55,45 +58,57 @@
         </div>
     </div>
 <div class="modal fade" id="modalSolicitud" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title">Configurar Servicio</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
+                
                 <div class="modal-body">
                     <form id="form-solicitud">
                         <input type="hidden" id="solicitud-proceso-id">
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">1. Ubicación</label>
-                            <select id="solicitud-ciudad" class="form-select" onchange="logic.cargarSensoresPorCiudad(this.value)">
-                                <option value="" selected disabled>Cargando ciudades...</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">2. Seleccione el Sensor</label>
-                            <select id="solicitud-sensor" class="form-select" required>
-                                <option value="" selected disabled>Cargando sensores...</option>
-                            </select>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">1. Ubicación</label>
+                                <select id="solicitud-ciudad" class="form-select" onchange="logic.cargarSensoresFiltrados()">
+                                    <option value="" selected disabled>Cargando...</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">2. Tipo Sensor</label>
+                                <select id="solicitud-tipo" class="form-select" onchange="logic.cargarSensoresFiltrados()">
+                                    <option value="todos" selected>Todos</option>
+                                    <option value="temperatura">Solo Temperatura</option>
+                                    <option value="humedad">Solo Humedad</option>
+                                    <option value="temperatura/humedad">Híbridos (T/H)</option>
+                                </select>
+                            </div>
                         </div>
 
-
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">3. Seleccione el Sensor</label>
+                            <select id="solicitud-sensor" class="form-select" disabled>
+                                <option value="" selected>Elija ubicación y tipo</option>
+                            </select>
+                        </div>
 
                         <div class="row">
                             <div class="col-6 mb-3">
-                                <label class="form-label fw-bold">3. Fecha Inicio</label>
+                                <label class="form-label fw-bold">4. Fecha Inicio</label>
                                 <input type="date" id="solicitud-inicio" class="form-control" required>
                             </div>
                             <div class="col-6 mb-3">
-                                <label class="form-label fw-bold">3. Fecha Fin</label>
+                                <label class="form-label fw-bold">5. Fecha Fin</label>
                                 <input type="date" id="solicitud-fin" class="form-control" required>
                             </div>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label fw-bold">4. Umbral (Opcional)</label>
+                            <label class="form-label fw-bold">6. Umbral (Opcional)</label>
                             <input type="number" id="solicitud-umbral" class="form-control" placeholder="Ej: 30 (para alertas)">
-                            <div class="form-text">Solo para procesos de detección de alertas.</div>
                         </div>
                     </form>
                     
@@ -101,9 +116,10 @@
                         Costo del servicio: <strong>$0.00</strong>
                     </div>
                 </div>
+                
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-success" onclick="logic.confirmarCompra()"> Confirmar y Pagar</button>
+                    <button type="button" class="btn btn-success" onclick="logic.confirmarCompra()">✅ Confirmar y Pagar</button>
                 </div>
             </div>
         </div>
