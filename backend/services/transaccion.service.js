@@ -1,6 +1,7 @@
 import * as ProcesoRepository from '../repositories/mongo/proceso.repository.js';
 import * as TransaccionRepository from '../repositories/postgres/transaccion.repository.js';
 import * as MedicionRepository from '../repositories/mongo/medicion.repository.js';
+import Sensor from '../models/mongo/Sensor.js';
 
 export async function solicitarProceso({ usuarioId, procesoId, parametros }) {
     
@@ -125,10 +126,31 @@ export async function solicitarProceso({ usuarioId, procesoId, parametros }) {
         throw new Error(`Error en el proceso: ${logicError.message}. Tu saldo ha sido reembolsado.`);
     }
     
+    // Enriquecer parámetros con información del sensor
+    let parametrosEnriquecidos = { ...parametros };
+    if (parametros?.sensorId) {
+        try {
+            const sensor = await Sensor.findById(parametros.sensorId, 'nombre ubicacion.ciudad');
+            if (sensor) {
+                parametrosEnriquecidos.sensorNombre = sensor.nombre;
+                parametrosEnriquecidos.sensorCiudad = sensor.ubicacion?.ciudad;
+            }
+        } catch (e) {
+            // Si falla obtener el sensor, continuamos sin enriquecer
+            console.warn('No se pudo enriquecer parámetros con datos del sensor:', e.message);
+        }
+    }
+    
+    // Guardar resultado con parámetros en estructura {parametros: {...}, resultado: {...}}
     if (resultadoDelProceso) {
+            const datosAGuardar = {
+                parametros: parametrosEnriquecidos,
+                resultado: resultadoDelProceso
+            };
+            
             await TransaccionRepository.guardarResultadoExitoso(
                 ticket.solicitud_id, 
-                resultadoDelProceso
+                datosAGuardar
             );
             }
   
