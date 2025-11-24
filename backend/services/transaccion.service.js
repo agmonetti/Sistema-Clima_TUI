@@ -16,8 +16,7 @@ export async function solicitarProceso({ usuarioId, procesoId, parametros }) {
     const ticket = await TransaccionRepository.crearSolicitudConFactura({
         usuarioId,
         procesoIdMongo: procesoId,
-        costo: proceso.costo,
-        parametros
+        costo: proceso.costo
     });
 
     console.log(`Cobrado. Solicitud #${ticket.solicitud_id}. Ejecutando lógica...`);
