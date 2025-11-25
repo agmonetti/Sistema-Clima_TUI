@@ -41,6 +41,7 @@ const logic = {
             if (esMiUsuario) {
                 nombreMostrar = `<strong>${u.nombre} (Usted)</strong>`;
                 claseFila = 'table-primary'; // Azul para mí
+                '<span class="badge bg-success rounded-pill" title="Online">● En Linea</span>' 
                 // Yo no me puedo borrar ni reactivar a mí mismo aquí
                 botonAccion = `<button class="btn btn-secondary btn-sm" disabled>🔒</button>`;
             
@@ -547,6 +548,7 @@ const logic = {
 
     async initTecnico() {
         const select = document.getElementById('tec-sensor-id');
+        this.iniciarLatido();
         if (!select) return;
 
         select.addEventListener('change', () => {
@@ -670,5 +672,9 @@ const logic = {
     iniciarLatido() {
         this.enviarPing();
         setInterval(() => this.enviarPing(), 60000); // Cada 60 segundos
-    }
+    },
+
+    initAdmin() {
+        this.iniciarLatido(); 
+    },
 };

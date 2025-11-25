@@ -32,5 +32,11 @@
     <script src="js/auth.js"></script>
     <script src="js/chat.js"></script> 
     <script src="js/logic.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            auth.verificarAcceso('admin');
+            logic.initAdmin(); 
+        });
+    </script>
 </body>
 </html>
