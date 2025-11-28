@@ -145,11 +145,30 @@ export async function solicitarProceso({ usuarioId, procesoId, parametros }) {
     }
     
     if (resultadoDelProceso) {
-            await TransaccionRepository.guardarResultadoExitoso(
-                ticket.solicitud_id, 
-                resultadoDelProceso
-            );
-            }
+        if (Array.isArray(resultadoDelProceso)) {
+            resultadoDelProceso = {
+                datos: resultadoDelProceso,
+                _esArrayOriginalmente: true // Flag para que la TUI sepa cómo leerlo
+            };
+        }
+
+        // 1. Inyectamos los metadatos
+        resultadoDelProceso._metadatos = {
+            sensorNombre: parametros.sensorNombre || 'ID: ' + parametros.sensorId,
+            fechaInicio: parametros.fechaInicio,
+            fechaFin: parametros.fechaFin,
+            umbral: parametros.umbral,
+            variable: parametros.variable,
+            origen: vinoDeCache ? 'Redis Cache' : 'MongoDB'
+        };
+
+        // 2. Guardamos en PostgreSQL
+        await TransaccionRepository.guardarResultadoExitoso(
+            ticket.solicitud_id, 
+            resultadoDelProceso
+        );
+    }
+            
     return {
         status: 'success',
         ticket: {
@@ -180,4 +199,18 @@ export async function cargarDinero(usuarioId, monto) {
     const nuevoSaldo = await TransaccionRepository.recargarSaldo(usuarioId, monto);
     return nuevoSaldo;
 
+}
+export async function obtenerDetalleSolicitud(solicitudId) {
+    const solicitud = await TransaccionRepository.obtenerSolicitudPorId(solicitudId);
+    if (!solicitud) return null;
+
+    // El resultado viene como texto desde Postgres, hay que parsearlo
+    if (solicitud.resultado) {
+        try {
+            solicitud.resultado = JSON.parse(solicitud.resultado);
+        } catch (e) {
+            console.error("Error parseando JSON de historial:", e);
+        }
+    }
+    return solicitud;
 }

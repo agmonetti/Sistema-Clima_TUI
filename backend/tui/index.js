@@ -129,7 +129,6 @@ async function main() {
 
 // Manejo de señales para cierre limpio
 process.on('SIGINT', () => {
-    console.log(chalk.cyan('\n\n👋 ¡Hasta pronto!\n'));
     process.exit(0);
 });
 

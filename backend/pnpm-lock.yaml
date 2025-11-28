@@ -36,7 +36,7 @@ importers:
         specifier: ^1.9.4
         version: 1.9.4
       inquirer:
-        specifier: ^9.3.8
+        specifier: '9'
         version: 9.3.8
       jsonwebtoken:
         specifier: ^9.0.2

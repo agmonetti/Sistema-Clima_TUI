@@ -208,3 +208,22 @@ export async function guardarResultadoExitoso(solicitudId, resultadoObj) {
         client.release();
     }
 }
+export async function obtenerSolicitudPorId(solicitudId) {
+    const SQL = `
+        SELECT 
+            sp.solicitud_id, 
+            sp.proceso_id, 
+            sp."fechaSolicitud", 
+            sp."isCompleted",
+            h.resultado,
+            f.factura_id,
+            f."estadoFactura"
+        FROM "Solicitud_Proceso" sp
+        LEFT JOIN "Historial_Ejecucion_Procesos" h ON sp.solicitud_id = h.solicitud_id
+        LEFT JOIN "Facturas" f ON sp.solicitud_id = f.solicitud_id
+        WHERE sp.solicitud_id = $1
+    `;
+    
+    const result = await pool.query(SQL, [solicitudId]);
+    return result.rows[0];
+}

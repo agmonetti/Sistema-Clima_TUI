@@ -2,6 +2,7 @@
  * Funciones de utilidad para crear tablas bonitas con cli-table3
  */
 import Table from 'cli-table3';
+import chalk from 'chalk';
 import { colorearEstado, colorearTemperatura, colorearRol, colorearSaldo, TITULO } from './colores.js';
 
 /**
@@ -96,7 +97,7 @@ export function crearTablaProcesos(procesos) {
 
 /**
  * Crea una tabla de historial de transacciones
- */
+ 
 export function crearTablaHistorial(historial) {
     const table = new Table({
         head: [TITULO('ID'), TITULO('Proceso'), TITULO('Costo'), TITULO('Estado'), TITULO('Fecha')],
@@ -115,7 +116,30 @@ export function crearTablaHistorial(historial) {
 
     return table.toString();
 }
+*/
+export function crearTablaHistorial(historial) {
+    const table = new Table({
+        head: [chalk.cyan('ID'), chalk.cyan('Fecha'), chalk.cyan('Estado'), chalk.cyan('Factura')],
+        colWidths: [10, 25, 15, 15]
+    });
 
+    historial.forEach(h => {
+        // Mapeo de datos de Postgres a la tabla
+        // h.fechaSolicitud viene como objeto Date
+        const fecha = h.fechaSolicitud ? new Date(h.fechaSolicitud).toLocaleString() : 'N/A';
+        const estado = h.isCompleted ? chalk.green('Completado') : chalk.yellow('Pendiente');
+        const factura = h.factura_id ? `#${h.factura_id}` : 'N/A';
+
+        table.push([
+            h.solicitud_id,
+            fecha,
+            estado,
+            factura
+        ]);
+    });
+
+    return table.toString();
+}
 /**
  * Crea una tabla de conversaciones/chats
  */

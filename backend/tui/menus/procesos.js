@@ -33,6 +33,7 @@ export async function menuProcesos() {
                     { name: `${ICONOS.menu} Ver catálogo de procesos`, value: 'catalogo' },
                     { name: `${ICONOS.proceso} Solicitar proceso`, value: 'solicitar' },
                     { name: `${ICONOS.info} Ver mi historial`, value: 'historial' },
+                    { name: `${ICONOS.lupa || '🔍'} Ver detalle de solicitud`, value: 'detalle' },
                     new inquirer.Separator(),
                     { name: `${ICONOS.flecha} Volver al menú principal`, value: 'volver' }
                 ]
@@ -50,6 +51,9 @@ export async function menuProcesos() {
                 break;
             case 'historial':
                 await verHistorial();
+                break;
+            case 'detalle':
+                await verDetalleSolicitud();
                 break;
         }
     }
@@ -132,6 +136,7 @@ async function solicitarProceso() {
         // Obtener parámetros según el proceso
         const parametros = await obtenerParametrosProceso(procesoSeleccionado.codigo, sensores);
         
+        
         if (!parametros) {
             mostrarInfo('Operación cancelada');
             await pausar();
@@ -201,11 +206,14 @@ async function obtenerParametrosProceso(codigo, sensores) {
         value: s._id.toString()
     }));
 
+    let respuestas = {};
+
+    // 1. Hacemos las preguntas según el caso
     switch (codigo) {
         case 'INFORME_MAXIMAS_MINIMAS':
         case 'INFORME_PROMEDIOS':
         case 'ANALISIS_DESVIACION':
-            return await inquirer.prompt([
+            respuestas = await inquirer.prompt([
                 {
                     type: 'list',
                     name: 'sensorId',
@@ -227,10 +235,11 @@ async function obtenerParametrosProceso(codigo, sensores) {
                     validate: validarFecha
                 }
             ]);
+            break;
 
         case 'CONSULTAR_DATOS':
         case 'CHECK_SALUD':
-            return await inquirer.prompt([
+            respuestas = await inquirer.prompt([
                 {
                     type: 'list',
                     name: 'sensorId',
@@ -238,14 +247,29 @@ async function obtenerParametrosProceso(codigo, sensores) {
                     choices: sensorChoices
                 }
             ]);
+            break;
 
         case 'BUSCAR_ALERTAS':
-            return await inquirer.prompt([
+            respuestas = await inquirer.prompt([
                 {
                     type: 'list',
                     name: 'sensorId',
                     message: 'Selecciona un sensor:',
                     choices: sensorChoices
+                },
+                {
+                    type: 'input',
+                    name: 'fechaInicio',
+                    message: 'Fecha inicio (YYYY-MM-DD):',
+                    default: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                    validate: validarFecha
+                },
+                {
+                    type: 'input',
+                    name: 'fechaFin',
+                    message: 'Fecha fin (YYYY-MM-DD):',
+                    default: new Date().toISOString().split('T')[0],
+                    validate: validarFecha
                 },
                 {
                     type: 'list',
@@ -272,9 +296,10 @@ async function obtenerParametrosProceso(codigo, sensores) {
                     validate: (input) => !isNaN(input) ? true : 'Debe ser un número'
                 }
             ]);
+            break;
 
         default:
-            return await inquirer.prompt([
+            respuestas = await inquirer.prompt([
                 {
                     type: 'list',
                     name: 'sensorId',
@@ -283,11 +308,22 @@ async function obtenerParametrosProceso(codigo, sensores) {
                 }
             ]);
     }
+
+    // 2. BUSCAMOS EL NOMBRE DEL SENSOR (La Magia ✨)
+    // Usamos el array 'sensores' que ya teníamos en memoria para encontrar el nombre
+    if (respuestas.sensorId) {
+        const sensorSeleccionado = sensores.find(s => s._id.toString() === respuestas.sensorId);
+        if (sensorSeleccionado) {
+            respuestas.sensorNombre = sensorSeleccionado.nombre; // Inyectamos el nombre
+        }
+    }
+
+    return respuestas;
 }
 
 /**
  * Formatea el resultado del proceso para mostrar
- */
+
 function formatearResultado(data) {
     if (!data) return 'Sin datos';
     
@@ -306,6 +342,76 @@ function formatearResultado(data) {
             return `${key}: ${value}`;
         })
         .join('\n');
+}
+*/
+/**
+ * Formatea el resultado del proceso para mostrar (con Metadatos)
+ */
+function formatearResultado(data) {
+    if (!data) return 'Sin datos';
+    
+    let output = '';
+
+    // 1. MOSTRAR METADATOS (Contexto de la solicitud)
+    if (data._metadatos) {
+        const m = data._metadatos;
+        
+        // Formatear fechas si existen
+        const fInicio = m.fechaInicio ? new Date(m.fechaInicio).toLocaleDateString() : '-';
+        const fFin = m.fechaFin ? new Date(m.fechaFin).toLocaleDateString() : '-';
+
+        output += chalk.cyan.bold('📋 PARÁMETROS UTILIZADOS:\n');
+        output += `   📡 Sensor: ${chalk.white(m.sensorNombre || m.sensorId)}\n`;
+        if (m.fechaInicio) output += `   📅 Rango:  ${fInicio} al ${fFin}\n`;
+        if (m.umbral) output += `   🚨 Umbral: ${m.umbral}\n`;
+        if (m.origen) output += `   ⚡ Fuente: ${m.origen}\n`; // Si usas caché
+        
+        output += chalk.dim('─────────────────────────────────────\n');
+    }
+
+    // 2. PREPARAR DATOS (Limpiar metadatos para no mostrarlos dos veces)
+    let datosPuros = data;
+    // Si tiene metadatos o es un array envuelto, extraemos lo real
+    if (data._metadatos || data._esArrayOriginalmente) {
+        if (data._esArrayOriginalmente) {
+            datosPuros = data.datos; // Es una lista (ej: Alertas)
+        } else {
+            // Es un objeto (ej: Promedios), hacemos copia y borramos claves internas
+            datosPuros = { ...data };
+            delete datosPuros._metadatos;
+            delete datosPuros._esArrayOriginalmente;
+        }
+    }
+
+    // 3. MOSTRAR RESULTADO
+    if (Array.isArray(datosPuros)) {
+        if (datosPuros.length === 0) return output + chalk.yellow('No se encontraron resultados.');
+        // Si es una lista, mostramos resumen y tal vez una tabla pequeña
+        return output + `Se encontraron ${chalk.bold(datosPuros.length)} registros.`;
+    }
+    
+    // Si es objeto (clave-valor)
+    const metricas = Object.entries(datosPuros)
+        .map(([key, value]) => {
+            if (key === '_id') return null; // Ignorar ID de mongo null
+            
+            // Formatear claves
+            let label = key.replace(/([A-Z])/g, ' $1').trim(); // camelCase a Texto
+            label = label.charAt(0).toUpperCase() + label.slice(1);
+
+            // Formatear valores
+            let valDisplay = value;
+            if (typeof value === 'number') {
+                valDisplay = value.toFixed(2);
+                if (key.toLowerCase().includes('temp')) valDisplay = colorearTemperatura(valDisplay);
+            }
+
+            return `   ${label}: ${valDisplay}`;
+        })
+        .filter(Boolean) // Quitar nulos
+        .join('\n');
+
+    return output + chalk.bold('📊 RESULTADOS:\n') + metricas;
 }
 
 /**
@@ -356,4 +462,60 @@ async function pausar() {
         name: 'pausa',
         message: chalk.dim('Presiona Enter para continuar...')
     }]);
+}
+
+async function verDetalleSolicitud() {
+    limpiarPantalla();
+    console.log(TITULO(`\n🔍 DETALLE DE SOLICITUD\n`));
+
+    // 1. Pedir ID
+    const { solicitudId } = await inquirer.prompt([
+        {
+            type: 'number',
+            name: 'solicitudId',
+            message: 'Ingresa el ID de la solicitud (Ver historial):',
+            validate: (input) => !isNaN(input) && input > 0 ? true : 'Ingresa un ID válido'
+        }
+    ]);
+
+    const spinner = ora(`Buscando solicitud #${solicitudId}...`).start();
+
+    try {
+        // 2. Buscar datos
+        const solicitud = await TransaccionService.obtenerDetalleSolicitud(solicitudId);
+
+        if (!solicitud) {
+            spinner.fail('Solicitud no encontrada');
+            await pausar();
+            return;
+        }
+
+        spinner.succeed('Solicitud encontrada');
+        console.log('\n');
+
+        // 3. Mostrar cabecera
+        const estadoColor = solicitud.isCompleted ? chalk.green('COMPLETADO') : chalk.yellow('PENDIENTE/FALLIDO');
+        
+        console.log(chalk.cyan('─────────────────────────────────────'));
+        console.log(` 🎫 ID Solicitud:  ${chalk.bold(solicitud.solicitud_id)}`);
+        console.log(` 📅 Fecha:         ${new Date(solicitud.fechaSolicitud).toLocaleString()}`);
+        console.log(` 📊 Estado:        ${estadoColor}`);
+        if(solicitud.factura_id) console.log(` 🧾 Factura:       #${solicitud.factura_id}`);
+        console.log(chalk.cyan('─────────────────────────────────────\n'));
+
+        // 4. Mostrar contenido (Resultado + Parametros)
+        if (solicitud.resultado) {
+            // Reutilizamos tu función formatearResultado que ya sabe leer _metadatos
+            console.log(formatearResultado(solicitud.resultado));
+        } else {
+            console.log(chalk.dim('No hay resultados almacenados para esta solicitud.'));
+        }
+
+        await pausar();
+
+    } catch (error) {
+        spinner.fail('Error al obtener detalle');
+        mostrarError(error.message);
+        await pausar();
+    }
 }

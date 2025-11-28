@@ -42,7 +42,6 @@ export async function pantallaAuth() {
         case 'registro':
             return await registro();
         case 'salir':
-            console.log(chalk.cyan('\n👋 ¡Hasta pronto!\n'));
             process.exit(0);
     }
 }
