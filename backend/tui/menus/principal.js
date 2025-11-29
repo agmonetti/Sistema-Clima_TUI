@@ -65,8 +65,6 @@ export async function menuPrincipal() {
 function obtenerOpcionesPorRol(rol) {
     const opcionesBase = [
         new inquirer.Separator(),
-        { name: `${ICONOS.sensor} Sensores`, value: 'sensores' },
-        { name: `${ICONOS.temperatura} Mediciones`, value: 'mediciones' },
         { name: `${ICONOS.proceso} Procesos`, value: 'procesos' },
         { name: `${ICONOS.mensaje} Mensajería`, value: 'mensajeria' },
         { name: `${ICONOS.dinero} Finanzas`, value: 'transacciones' },
@@ -77,7 +75,17 @@ function obtenerOpcionesPorRol(rol) {
         opcionesBase.push(
             new inquirer.Separator(),
             new inquirer.Separator('Opciones de Admin '),
+            { name: `${ICONOS.temperatura} Mediciones`, value: 'mediciones' },
             { name: `${ICONOS.usuario} Gestión de Usuarios`, value: 'usuarios' }
+        );
+    }
+
+    if (rol === 'tecnico') {
+        opcionesBase.push(
+            new inquirer.Separator(),
+            new inquirer.Separator('Opciones de Técnico '),
+            { name: `${ICONOS.sensor} Sensores`, value: 'sensores' },
+            { name: `${ICONOS.temperatura} Mediciones`, value: 'mediciones' }
         );
     }
 

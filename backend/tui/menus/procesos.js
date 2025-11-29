@@ -122,13 +122,14 @@ async function solicitarProceso() {
                 name: 'procesoId',
                 message: 'Selecciona el proceso a ejecutar:',
                 pageSize: 10,
+                loop: false,
                 choices:[
                     new inquirer.Separator(),
                     {name:'Volver al menu anterior' , value:'volver'},
                     new inquirer.Separator(),
-                    ...procesos.map(p => ({
-                    name: `${p.nombre} - $${p.costo} - ${p.descripcion || ''}`,
-                    value: p._id.toString()
+                    ...procesos.map((p, index) => ({
+                        name: `${index + 1}. ${p.nombre} - $${p.costo} - ${p.descripcion || ''}`,
+                        value: p._id.toString()
                     })),
                 ]
             }
@@ -212,8 +213,8 @@ async function obtenerParametrosProceso(codigo, sensores) {
         return null;
     }
 
-    const sensorChoices = sensores.map(s => ({
-        name: `${s.nombre} - ${s.ubicacion?.ciudad || 'N/A'}`,
+    const sensorChoices = sensores.map((s,index) => ({
+        name: `${index + 1} - ${s.nombre} - ${s.ubicacion?.ciudad || 'N/A'}`,
         value: s._id.toString()
     }));
 
@@ -229,7 +230,9 @@ async function obtenerParametrosProceso(codigo, sensores) {
                     type: 'list',
                     name: 'sensorId',
                     message: 'Selecciona un sensor:',
-                    choices: sensorChoices
+                    loop: false,
+                    choices: sensorChoices,
+                    pageSize: 12
                 },
                 {
                     type: 'input',
@@ -255,7 +258,9 @@ async function obtenerParametrosProceso(codigo, sensores) {
                     type: 'list',
                     name: 'sensorId',
                     message: 'Selecciona un sensor:',
-                    choices: sensorChoices
+                    loop: false,
+                    choices: sensorChoices,
+                    pageSize: 12
                 }
             ]);
             break;
@@ -266,7 +271,9 @@ async function obtenerParametrosProceso(codigo, sensores) {
                     type: 'list',
                     name: 'sensorId',
                     message: 'Selecciona un sensor:',
-                    choices: sensorChoices
+                    loop: false,
+                    choices: sensorChoices,
+                    pageSize: 12
                 },
                 {
                     type: 'input',
@@ -301,12 +308,17 @@ async function obtenerParametrosProceso(codigo, sensores) {
                     ]
                 },
                 {
-                    type: 'number',
+                    type: 'input',
                     name: 'umbral',
                     message: 'Valor umbral:',
-                    validate: (input) => !isNaN(input) ? true : 'Debe ser un número'
+                    validate: (input) => input && input.trim() !== '' ? true : 'No puede estar vacio'
                 }
             ]);
+            if (isNaN(respuestas.umbral)) {
+                console.log(chalk.red('\nSolicitud cancelada.¡Debe ser un valor numerico!\n'));
+                return null; 
+            }
+            
             break;
 
         default:
@@ -315,14 +327,14 @@ async function obtenerParametrosProceso(codigo, sensores) {
                     type: 'list',
                     name: 'sensorId',
                     message: 'Selecciona un sensor:',
-                    choices: sensorChoices
+                    loop: false,
+                    choices: sensorChoices,
+                    pageSize: 12
                 }
             ]);
     }
 
-    // 2. BUSCAMOS EL NOMBRE DEL SENSOR (La Magia ✨)
-    // Usamos el array 'sensores' que ya teníamos en memoria para encontrar el nombre
-    if (respuestas.sensorId) {
+   if (respuestas.sensorId) {
         const sensorSeleccionado = sensores.find(s => s._id.toString() === respuestas.sensorId);
         if (sensorSeleccionado) {
             respuestas.sensorNombre = sensorSeleccionado.nombre; // Inyectamos el nombre
@@ -351,9 +363,9 @@ function formatearResultado(data) {
 
         output += chalk.cyan.bold('📋 PARÁMETROS UTILIZADOS:\n');
         output += `   📡 Sensor: ${chalk.white(m.sensorNombre || m.sensorId)}\n`;
-        if (m.fechaInicio) output += `   📅 Rango:  ${fInicio} al ${fFin}\n`;
+        if (m.fechaInicio) output += `   Rango:  ${fInicio} al ${fFin}\n`;
         if (m.umbral) output += `   🚨 Umbral: ${m.umbral}\n`;
-        if (m.origen) output += `   ⚡ Fuente: ${m.origen}\n`; // Si usas caché
+        if (m.origen) output += `   Fuente: ${m.origen}\n`; // Si usas caché
         
         output += chalk.dim('─────────────────────────────────────\n');
     }
