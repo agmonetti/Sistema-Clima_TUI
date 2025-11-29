@@ -1,10 +1,3 @@
-#!/usr/bin/env node
-/**
- * TUI (Text User Interface) - Interfaz de Terminal Interactiva
- * Sistema de Clima - Punto de entrada principal
- * 
- * NO es una API REST - Es una interfaz de consola interactiva
- */
 import 'dotenv/config';
 import clear from 'clear';
 import chalk from 'chalk';

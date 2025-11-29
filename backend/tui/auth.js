@@ -1,7 +1,3 @@
-/**
- * Módulo de autenticación para la TUI
- * Maneja login, registro y validaciones
- */
 import inquirer from 'inquirer';
 import bcrypt from 'bcryptjs';
 import chalk from 'chalk';
@@ -11,15 +7,12 @@ import * as UsuarioRepository from '../repositories/postgres/usuario.repository.
 import { limpiarPantalla, mostrarExito, mostrarError, mostrarCaja, validarEmail } from './utils/helpers.js';
 import { ICONOS, TITULO } from './utils/colores.js';
 
-/**
- * Pantalla de autenticación principal
- * Muestra menú con opciones: Login, Registro, Salir
- */
+
 export async function pantallaAuth() {
     limpiarPantalla();
     
     mostrarCaja(
-        chalk.cyan.bold('🌤️  Sistema de Clima - Autenticación'),
+        chalk.cyan.bold('🔥 Sistema climatico 💧 '),
         { borderColor: 'cyan', padding: 1 }
     );
     
@@ -29,8 +22,10 @@ export async function pantallaAuth() {
             name: 'opcion',
             message: 'Selecciona una opción:',
             choices: [
+                new inquirer.Separator(),
                 { name: `${ICONOS.usuario} Iniciar Sesión`, value: 'login' },
                 { name: `${ICONOS.exito} Registrarse`, value: 'registro' },
+                new inquirer.Separator(),
                 { name: `${ICONOS.salir} Salir`, value: 'salir' }
             ]
         }
