@@ -40,12 +40,12 @@ export async function menuPrincipal() {
                 name: 'opcion',
                 message: '¿Qué deseas hacer?',
                 choices: opciones,
-                pageSize: 12
+                pageSize: 14
             }
         ]);
 
         if (opcion === 'salir') {
-            console.log(chalk.cyan(`\n👋 ¡Hasta pronto, ${usuario.nombre}!\n`));
+            console.log(chalk.cyan(`\n ¡Hasta pronto, ${usuario.nombre}!\n`));
             process.exit(0);
         }
 
@@ -64,24 +64,25 @@ export async function menuPrincipal() {
  */
 function obtenerOpcionesPorRol(rol) {
     const opcionesBase = [
-        new inquirer.Separator(chalk.dim('── Datos ──')),
+        new inquirer.Separator(),
         { name: `${ICONOS.sensor} Sensores`, value: 'sensores' },
         { name: `${ICONOS.temperatura} Mediciones`, value: 'mediciones' },
-        new inquirer.Separator(chalk.dim('── Servicios ──')),
         { name: `${ICONOS.proceso} Procesos`, value: 'procesos' },
         { name: `${ICONOS.mensaje} Mensajería`, value: 'mensajeria' },
-        { name: `${ICONOS.dinero} Mi Cuenta / Facturación`, value: 'transacciones' },
+        { name: `${ICONOS.dinero} Finanzas`, value: 'transacciones' },
     ];
 
     // Agregar opciones de administración solo para admin
     if (rol === 'admin') {
         opcionesBase.push(
-            new inquirer.Separator(chalk.dim('── Administración ──')),
+            new inquirer.Separator(),
+            new inquirer.Separator('Opciones de Admin '),
             { name: `${ICONOS.usuario} Gestión de Usuarios`, value: 'usuarios' }
         );
     }
 
     // Opciones finales para todos
+    console.log('\n')
     opcionesBase.push(
         new inquirer.Separator(chalk.dim('──────────')),
         { name: `${ICONOS.salir} Cerrar Sesión`, value: 'cerrar_sesion' },
