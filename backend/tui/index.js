@@ -4,20 +4,17 @@ import chalk from 'chalk';
 import figlet from 'figlet';
 import ora from 'ora';
 import boxen from 'boxen';
-
-// Importar conexiones a bases de datos
 import { connectMongo } from '../config/mongo.js';
 import { connectPostgres } from '../config/postgres.js';
 import { connectRedis } from '../config/redis.js';
-
-// Importar módulos TUI
 import { pantallaAuth } from './auth.js';
 import { menuPrincipal } from './menus/principal.js';
 import { session } from './session.js';
+import mongoose from 'mongoose';
+import pool from '../config/postgres.js';
+import redisClient from '../config/redis.js';
 
-/**
- * Muestra el banner ASCII de bienvenida
- */
+
 function mostrarBanner() {
     clear();
     
@@ -115,19 +112,34 @@ async function main() {
         }
         
     } catch (error) {
-        console.error(chalk.red('\n❌ Error fatal:'), error.message);
+        console.error(chalk.red('\nError fatal:'), error.message);
         process.exit(1);
     }
 }
 
-// Manejo de señales para cierre limpio
-process.on('SIGINT', () => {
-    process.exit(0);
-});
 
-process.on('SIGTERM', () => {
-    process.exit(0);
-});
+async function cerrarServicios() {
+    console.log('\n'); 
+    const spinner = ora('Deteniendo aplicación').start();
 
-// Iniciar la aplicación
+    try {
+        const promesasCierre = [];
+        if (redisClient.isOpen) {
+            promesasCierre.push(redisClient.quit());
+        }
+        promesasCierre.push(mongoose.disconnect());
+        promesasCierre.push(pool.end());
+        await Promise.all(promesasCierre);
+        spinner.succeed('Servicios desconectados');
+        process.exit(0);
+
+    } catch (error) {
+        spinner.fail('Error al detener la aplicación');
+        console.error(error);
+        process.exit(1);
+    }
+}
+
+process.on('SIGINT', cerrarServicios);  // ctrl + c
+process.on('SIGTERM', cerrarServicios); //  'docker stop'
 main();

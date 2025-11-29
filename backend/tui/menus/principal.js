@@ -1,24 +1,16 @@
-/**
- * Menú principal de la TUI
- * Muestra opciones basadas en el rol del usuario
- */
 import inquirer from 'inquirer';
 import chalk from 'chalk';
 import { session } from '../session.js';
 import { limpiarPantalla, mostrarInfoUsuario, mostrarCaja } from '../utils/helpers.js';
 import { ICONOS, TITULO } from '../utils/colores.js';
-
-// Importar submenús
 import { menuSensores } from './sensores.js';
 import { menuMediciones } from './mediciones.js';
 import { menuProcesos } from './procesos.js';
 import { menuMensajeria } from './mensajeria.js';
 import { menuUsuarios } from './usuarios.js';
 import { menuTransacciones } from './transacciones.js';
+import { mostrarEstadoSistema } from './pingBDs.js'; 
 
-/**
- * Menú principal - punto de entrada después del login
- */
 export async function menuPrincipal() {
     const usuario = session.getUser();
     
@@ -54,6 +46,8 @@ export async function menuPrincipal() {
             return; // Vuelve al loop principal que mostrará la pantalla de auth
         }
 
+
+
         // Ejecutar el submenú correspondiente
         await ejecutarOpcion(opcion);
     }
@@ -76,7 +70,8 @@ function obtenerOpcionesPorRol(rol) {
             new inquirer.Separator(),
             new inquirer.Separator('Opciones de Admin '),
             { name: `${ICONOS.temperatura} Mediciones`, value: 'mediciones' },
-            { name: `${ICONOS.usuario} Gestión de Usuarios`, value: 'usuarios' }
+            { name: `${ICONOS.usuario} Gestión de Usuarios`, value: 'usuarios' },
+            {name: 'Estado sistema', value: 'estado_sistema'}
         );
     }
 
@@ -85,7 +80,8 @@ function obtenerOpcionesPorRol(rol) {
             new inquirer.Separator(),
             new inquirer.Separator('Opciones de Técnico '),
             { name: `${ICONOS.sensor} Sensores`, value: 'sensores' },
-            { name: `${ICONOS.temperatura} Mediciones`, value: 'mediciones' }
+            { name: `${ICONOS.temperatura} Mediciones`, value: 'mediciones' },
+            {name: 'Estado sistema', value: 'estado_sistema'}
         );
     }
 
@@ -122,6 +118,9 @@ async function ejecutarOpcion(opcion) {
             break;
         case 'usuarios':
             await menuUsuarios();
+            break;
+        case 'estado_sistema':
+            await mostrarEstadoSistema();
             break;
     }
 }
