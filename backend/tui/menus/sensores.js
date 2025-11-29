@@ -42,9 +42,6 @@ export async function menuSensores() {
             case 'buscar':
                 await buscarSensor();
                 break;
-            case 'editar':
-                await editarSensor();
-                break;
             case 'eliminar':
                 await eliminarSensor();
                 break;
@@ -63,16 +60,15 @@ function obtenerOpcionesSensores() {
         { name: `${ICONOS.info} Buscar sensor`, value: 'buscar' }
     ];
 
-    // Solo técnicos y admins pueden crear/editar
-    if (['tecnico', 'admin'].includes(rol)) {
+    // Solo tecnicos pueden crear
+    if (rol === 'tecnico'){
         opciones.push(
             { name: `${ICONOS.exito} Crear nuevo sensor`, value: 'crear' },
-            { name: `${ICONOS.advertencia} Editar sensor`, value: 'editar' }
         );
     }
 
-    // Solo admin puede eliminar
-    if (rol === 'admin') {
+    // Solo tecnico puede eliminar
+    if (rol === 'tecnico') {
         opciones.push(
             { name: `${ICONOS.error} Eliminar sensor`, value: 'eliminar' }
         );
@@ -80,7 +76,7 @@ function obtenerOpcionesSensores() {
 
     opciones.push(
         new inquirer.Separator(),
-        { name: `${ICONOS.flecha} Volver al menú principal`, value: 'volver' }
+        { name: `${ICONOS.flecha} Volver al menu principal`, value: 'volver' }
     );
 
     return opciones;
@@ -277,90 +273,6 @@ async function buscarSensor() {
     }
 }
 
-/**
- * Edita un sensor existente
- */
-async function editarSensor() {
-    limpiarPantalla();
-    console.log(TITULO(`\n${ICONOS.advertencia} EDITAR SENSOR\n`));
-
-    const { sensorId } = await inquirer.prompt([
-        {
-            type: 'input',
-            name: 'sensorId',
-            message: 'ID del sensor a editar:',
-            validate: (input) => input ? true : 'El ID es requerido'
-        }
-    ]);
-
-    const spinner = ora('Buscando sensor...').start();
-
-    try {
-        const sensor = await Sensor.findById(sensorId);
-        
-        if (!sensor) {
-            spinner.fail('Sensor no encontrado');
-            await pausar();
-            return;
-        }
-
-        spinner.succeed(`Sensor encontrado: ${sensor.nombre}`);
-        
-        const datosActualizados = await inquirer.prompt([
-            {
-                type: 'input',
-                name: 'nombre',
-                message: 'Nuevo nombre (Enter para mantener):',
-                default: sensor.nombre
-            },
-            {
-                type: 'list',
-                name: 'estado_sensor',
-                message: 'Nuevo estado:',
-                choices: [
-                    { name: '🟢 Activo', value: 'activo' },
-                    { name: '🟡 Inactivo', value: 'inactivo' },
-                    { name: '🔴 Falla', value: 'falla' }
-                ],
-                default: sensor.configuracion.estado_sensor
-            },
-            {
-                type: 'input',
-                name: 'ciudad',
-                message: 'Nueva ciudad (Enter para mantener):',
-                default: sensor.ubicacion.ciudad
-            }
-        ]);
-
-        const { confirmar } = await inquirer.prompt([
-            {
-                type: 'confirm',
-                name: 'confirmar',
-                message: '¿Confirmas los cambios?',
-                default: true
-            }
-        ]);
-
-        if (!confirmar) {
-            mostrarInfo('Operación cancelada');
-            await pausar();
-            return;
-        }
-
-        const spinnerUpdate = ora('Actualizando sensor...').start();
-
-        sensor.nombre = datosActualizados.nombre;
-        sensor.configuracion.estado_sensor = datosActualizados.estado_sensor;
-        sensor.ubicacion.ciudad = datosActualizados.ciudad;
-        await sensor.save();
-
-        spinnerUpdate.succeed('Sensor actualizado correctamente');
-        await pausar();
-    } catch (error) {
-        mostrarError(error.message);
-        await pausar();
-    }
-}
 
 /**
  * Elimina un sensor (solo admin)

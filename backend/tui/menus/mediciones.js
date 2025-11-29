@@ -68,18 +68,31 @@ async function verUltimasMediciones() {
         }
         
         spinnerSensores.succeed(`${sensores.length} sensores disponibles`);
+        console.log((chalk.dim(`\n ↑ Para desplazarse ↓ \n`)));
 
-        const { sensorId, limite } = await inquirer.prompt([
+        const { sensorId } = await inquirer.prompt([
             {
                 type: 'list',
                 name: 'sensorId',
                 message: 'Selecciona un sensor:',
-                choices: sensores.map(s => ({
-                    name: `${s.nombre} - ${s.ubicacion?.ciudad || 'N/A'}`,
+                loop: false, 
+                pageSize: 12, // opciones por pagina
+                choices:
+                    [
+                    new inquirer.Separator(),
+                    {name:'Volver al menu anterior' , value:'volver'},
+                    new inquirer.Separator(),
+                ...sensores.map((s, index) => ({ 
+                    name: `${index + 1}. ${s.nombre} - ${s.ubicacion?.ciudad || 'N/A'}`,
                     value: s._id.toString()
-                })),
-                pageSize: 10
-            },
+                    })),
+
+                ]
+            }
+        ]);
+            if (sensorId === 'volver') return;   
+
+            const { limite } = await inquirer.prompt([
             {
                 type: 'number',
                 name: 'limite',
@@ -92,6 +105,7 @@ async function verUltimasMediciones() {
                 }
             }
         ]);
+        
 
         const spinner = ora('Obteniendo mediciones...').start();
         const mediciones = await MedicionRepository.obtenerUltimasMediciones(sensorId, limite);
@@ -129,18 +143,31 @@ async function verReporteRango() {
         }
         
         spinnerSensores.succeed(`${sensores.length} sensores disponibles`);
+        console.log((chalk.dim(`\n ↑ Para desplazarse ↓ \n`)));
 
-        const { sensorId, fechaInicio, fechaFin } = await inquirer.prompt([
+        const { sensorId } = await inquirer.prompt([
             {
                 type: 'list',
                 name: 'sensorId',
                 message: 'Selecciona un sensor:',
-                choices: sensores.map(s => ({
-                    name: `${s.nombre} - ${s.ubicacion?.ciudad || 'N/A'}`,
-                    value: s._id.toString()
-                })),
-                pageSize: 10
-            },
+                loop: false,
+                pageSize: 12,
+                choices: [
+                    new inquirer.Separator(),
+                    { name: 'Volver al menu anterior', value: 'volver' },
+                    new inquirer.Separator(),
+                    ...sensores.map((s, index) => ({
+                        name: `${index + 1}. ${s.nombre} - ${s.ubicacion?.ciudad || 'N/A'}`,
+                        value: s._id.toString()
+                    }))
+                ]
+            }
+        ]);
+
+        if (sensorId === 'volver') return; 
+
+        // Ahora pedimos las fechas
+        const { fechaInicio, fechaFin } = await inquirer.prompt([
             {
                 type: 'input',
                 name: 'fechaInicio',
@@ -166,13 +193,13 @@ async function verReporteRango() {
             spinner.succeed('Reporte generado');
             console.log('\n');
             console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
-            console.log(chalk.bold('  📊 RESUMEN ESTADÍSTICO'));
+            console.log(chalk.bold('  RESUMEN ESTADÍSTICO'));
             console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
-            console.log(`  🌡️ Temperatura Máxima:   ${colorearTemperatura(reporte.tempMaxima?.toFixed(2))}`);
-            console.log(`  🌡️ Temperatura Mínima:   ${colorearTemperatura(reporte.tempMinima?.toFixed(2))}`);
-            console.log(`  📈 Temperatura Promedio: ${colorearTemperatura(reporte.tempPromedio?.toFixed(2))}`);
-            console.log(`  📊 Desviación Estándar:  ${reporte.stdDev?.toFixed(2) || 'N/A'}`);
-            console.log(`  📝 Total Mediciones:     ${reporte.cantMediciones}`);
+            console.log(`  Temperatura Máxima:   ${colorearTemperatura(reporte.tempMaxima?.toFixed(2))}`);
+            console.log(`  Temperatura Mínima:   ${colorearTemperatura(reporte.tempMinima?.toFixed(2))}`);
+            console.log(`  Temperatura Promedio: ${colorearTemperatura(reporte.tempPromedio?.toFixed(2))}`);
+            console.log(`  Desviación Estándar:  ${reporte.stdDev?.toFixed(2) || 'N/A'}`);
+            console.log(`  Total Mediciones:     ${reporte.cantMediciones}`);
             console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'));
         }
 
@@ -202,19 +229,32 @@ async function buscarAlertas() {
         }
         
         spinnerSensores.succeed(`${sensores.length} sensores disponibles`);
+         console.log((chalk.dim(`\n ↑ Para desplazarse ↓ \n`)));
 
-        const { sensorId, variable, operador, umbral } = await inquirer.prompt([
+        const { sensorId } = await inquirer.prompt([
             {
                 type: 'list',
                 name: 'sensorId',
                 message: 'Selecciona un sensor:',
-                choices: sensores.map(s => ({
-                    name: `${s.nombre} - ${s.ubicacion?.ciudad || 'N/A'}`,
-                    value: s._id.toString()
-                })),
-                pageSize: 10
-            },
-            {
+                loop: false,
+                pageSize: 12,
+                choices: [
+                    new inquirer.Separator(),
+                    { name: 'Volver al menu anterior', value: 'volver' },
+                    new inquirer.Separator(),
+                    ...sensores.map((s, index) => ({
+                        name: `${index + 1}. ${s.nombre} - ${s.ubicacion?.ciudad || 'N/A'}`,
+                        value: s._id.toString()
+                    }))
+                ]
+            }
+        ]);
+
+        if (sensorId === 'volver') return; 
+
+        // Resto de preguntas 
+        const { variable, operador, umbral } = await inquirer.prompt([
+             {
                 type: 'list',
                 name: 'variable',
                 message: 'Variable a monitorear:',

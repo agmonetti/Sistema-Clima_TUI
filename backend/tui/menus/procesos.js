@@ -111,18 +111,29 @@ async function solicitarProceso() {
         console.log(chalk.dim(`\nTu saldo actual: ${colorearSaldo(usuario.saldoActual)}\n`));
 
         // Seleccionar proceso
+
+    
+        console.log((chalk.dim(` ↑ Para desplazarse ↓ \n`)));
+        
+
         const { procesoId } = await inquirer.prompt([
             {
                 type: 'list',
                 name: 'procesoId',
                 message: 'Selecciona el proceso a ejecutar:',
-                choices: procesos.map(p => ({
+                pageSize: 10,
+                choices:[
+                    new inquirer.Separator(),
+                    {name:'Volver al menu anterior' , value:'volver'},
+                    new inquirer.Separator(),
+                    ...procesos.map(p => ({
                     name: `${p.nombre} - $${p.costo} - ${p.descripcion || ''}`,
                     value: p._id.toString()
-                })),
-                pageSize: 10
+                    })),
+                ]
             }
         ]);
+        if (procesoId === 'volver') return;
 
         const procesoSeleccionado = procesos.find(p => p._id.toString() === procesoId);
         
@@ -321,29 +332,7 @@ async function obtenerParametrosProceso(codigo, sensores) {
     return respuestas;
 }
 
-/**
- * Formatea el resultado del proceso para mostrar
 
-function formatearResultado(data) {
-    if (!data) return 'Sin datos';
-    
-    if (Array.isArray(data)) {
-        return `Se encontraron ${data.length} registros`;
-    }
-    
-    return Object.entries(data)
-        .map(([key, value]) => {
-            if (typeof value === 'number') {
-                if (key.toLowerCase().includes('temp')) {
-                    return `${key}: ${colorearTemperatura(value.toFixed(2))}`;
-                }
-                return `${key}: ${value.toFixed(2)}`;
-            }
-            return `${key}: ${value}`;
-        })
-        .join('\n');
-}
-*/
 /**
  * Formatea el resultado del proceso para mostrar (con Metadatos)
  */
@@ -464,19 +453,33 @@ async function pausar() {
     }]);
 }
 
+
 async function verDetalleSolicitud() {
     limpiarPantalla();
     console.log(TITULO(`\n🔍 DETALLE DE SOLICITUD\n`));
 
-    // 1. Pedir ID
-    const { solicitudId } = await inquirer.prompt([
+    // CAMBIO 1: Usamos type 'input' para tener control total y evitar el NaN
+    const { inputId } = await inquirer.prompt([
         {
-            type: 'number',
-            name: 'solicitudId',
-            message: 'Ingresa el ID de la solicitud (Ver historial):',
-            validate: (input) => !isNaN(input) && input > 0 ? true : 'Ingresa un ID válido'
+            type: 'input',
+            name: 'inputId',
+            message: 'Ingresa el ID de la solicitud (o escribe 0 para volver):',
+            validate: (input) => {
+                
+                if (input === '0') return true;
+                
+                if (!/^\d+$/.test(input)) return 'Ingresar un numero valido';
+                
+                return true;
+            }
         }
     ]);
+
+    // CAMBIO 2: Lógica de salida
+    if (inputId === '0') return;
+
+    // Convertimos a número ahora que estamos seguros que es válido
+    const solicitudId = parseInt(inputId);
 
     const spinner = ora(`Buscando solicitud #${solicitudId}...`).start();
 
@@ -505,7 +508,6 @@ async function verDetalleSolicitud() {
 
         // 4. Mostrar contenido (Resultado + Parametros)
         if (solicitud.resultado) {
-            // Reutilizamos tu función formatearResultado que ya sabe leer _metadatos
             console.log(formatearResultado(solicitud.resultado));
         } else {
             console.log(chalk.dim('No hay resultados almacenados para esta solicitud.'));
