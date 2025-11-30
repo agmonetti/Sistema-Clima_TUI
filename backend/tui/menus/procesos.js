@@ -381,13 +381,14 @@ function formatearResultado(data) {
         const fInicio = m.fechaInicio ? new Date(m.fechaInicio).toLocaleDateString() : '-';
         const fFin = m.fechaFin ? new Date(m.fechaFin).toLocaleDateString() : '-';
 
-        output += chalk.cyan.bold('📋 PARÁMETROS UTILIZADOS:\n');
-        output += `   📡 Sensor: ${chalk.white(m.sensorNombre || m.sensorId)}\n`;
+        output += chalk.cyan.bold('PARÁMETROS UTILIZADOS:\n');
+        output += chalk.cyan('─────────────────────────────────────\n');
+        output += `   \nSensor: ${chalk.white(m.sensorNombre || m.sensorId)}\n`;
         if (m.fechaInicio) output += `   Rango:  ${fInicio} al ${fFin}\n`;
-        if (m.umbral) output += `   🚨 Umbral: ${m.umbral}\n`;
+        if (m.umbral) output += `   Umbral: ${m.umbral}\n`;
         if (m.origen) output += `   Fuente: ${m.origen}\n`; // Si usas caché
         
-        output += chalk.dim('─────────────────────────────────────\n');
+        output += chalk.cyan.bold('─────────────────────────────────────\n');
     }
 
     // 2. PREPARAR DATOS (Limpiar metadatos para no mostrarlos dos veces)
@@ -530,13 +531,14 @@ async function verDetalleSolicitud() {
 
         // 3. Mostrar cabecera
         const estadoColor = solicitud.isCompleted ? chalk.green('COMPLETADO') : chalk.yellow('PENDIENTE/FALLIDO');
-        
-        console.log(chalk.cyan('─────────────────────────────────────'));
-        console.log(` 🎫 ID Solicitud:  ${chalk.bold(solicitud.solicitud_id)}`);
-        console.log(` 📅 Fecha:         ${new Date(solicitud.fechaSolicitud).toLocaleString()}`);
-        console.log(` 📊 Estado:        ${estadoColor}`);
-        if(solicitud.factura_id) console.log(` 🧾 Factura:       #${solicitud.factura_id}`);
+        console.log(`${chalk.cyan.bold('DETALLES DE LA SOLICITUD:')}`);
         console.log(chalk.cyan('─────────────────────────────────────\n'));
+        console.log(` ID Solicitud:  ${chalk.bold(solicitud.solicitud_id)}`);
+        console.log(` Servicio:      ${chalk.bold(solicitud.nombre_proceso || 'N/A')}`); 
+        console.log(` Fecha:         ${new Date(solicitud.fechaSolicitud).toLocaleString()}`);
+        console.log(` Estado:        ${estadoColor}`);
+        if(solicitud.factura_id) console.log(` Ticket:        #${solicitud.factura_id}`);
+        console.log(chalk.dim('\n─────────────────────────────────────\n'));
 
         // 4. Mostrar contenido (Resultado + Parametros)
         if (solicitud.resultado) {

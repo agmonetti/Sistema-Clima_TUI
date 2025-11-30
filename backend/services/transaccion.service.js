@@ -1,4 +1,3 @@
-
 import * as ProcesoRepository from '../repositories/mongo/proceso.repository.js';
 import * as TransaccionRepository from '../repositories/postgres/transaccion.repository.js';
 import * as MedicionRepository from '../repositories/mongo/medicion.repository.js';
@@ -244,8 +243,17 @@ export async function cargarDinero(usuarioId, monto) {
 
 export async function obtenerDetalleSolicitud(solicitudId) {
     const solicitud = await TransaccionRepository.obtenerSolicitudPorId(solicitudId);
+    
     if (!solicitud) return null;
-
+    try {
+        if (solicitud.proceso_id) {
+            const procesoMongo = await ProcesoRepository.obtenerProcesoPorId(solicitud.proceso_id);
+            solicitud.nombre_proceso = procesoMongo ? procesoMongo.nombre : 'Proceso no encontrado';
+            solicitud.codigo_proceso = procesoMongo ? procesoMongo.codigo : 'UNKNOWN';
+        }
+    } catch (error) {
+        solicitud.nombre_proceso = 'Error recuperando el nombre';
+    }
     if (solicitud.resultado) {
         try {
             solicitud.resultado = JSON.parse(solicitud.resultado);
@@ -253,5 +261,6 @@ export async function obtenerDetalleSolicitud(solicitudId) {
             console.error("Error parseando JSON de historial:", e);
         }
     }
+    
     return solicitud;
 }
