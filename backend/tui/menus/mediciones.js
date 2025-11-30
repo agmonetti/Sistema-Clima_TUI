@@ -23,12 +23,13 @@ export async function menuMediciones() {
                 name: 'opcion',
                 message: 'Selecciona una opción:',
                 choices: [
+                     new inquirer.Separator(),
+                    { name: `← Volver al menu principal`, value: 'volver' },
+                    new inquirer.Separator(),
                     { name: `- Ver últimas mediciones de un sensor`, value: 'ultimas' },
                     { name: `- Ver reporte de rango de fechas`, value: 'reporte' },
                     { name: `- Buscar alertas`, value: 'alertas' },
-                    new inquirer.Separator(),
-                    { name: `← Volver al menu principal`, value: 'volver' }
-                ]
+                   ]
             }
         ]);
 

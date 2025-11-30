@@ -39,27 +39,46 @@ export async function solicitarProceso({ usuarioId, procesoId, parametros }) {
 }
 
 // lista de procesos pendientes
-export async function listarPendientesParaTecnico() {
+export async function listarPendientesParaTecnico(criterio = 'antiuedad_asc') {
     const pendientesSQL = await TransaccionRepository.obtenerSolicitudesPendientes();
 
-    // SQL tiene el ID del proceso, Mongo tiene el Nombre, juntamos todo
-    const listaCompleta = await Promise.all(pendientesSQL.map(async (p) => {
+    // SQL tiene el ID del proceso, mongo tiene el nombre, juntamos todo
+    let listaCompleta = await Promise.all(pendientesSQL.map(async (p) => {
         try {
             const procesoMongo = await ProcesoRepository.obtenerProcesoPorId(p.proceso_id_mongo);
             return { 
                 ...p, 
                 nombre_proceso: procesoMongo.nombre, 
                 codigo_proceso: procesoMongo.codigo,
-                complejidad: procesoMongo.complejidad || 'DESCONOCIDA'
+                complejidad: procesoMongo.complejidad || 'BAJA' // Default a BAJA si no tiene
             };
         } catch (e) {
-            return { ...p, 
-                        nombre_proceso: 'Proceso Desconocido',
-                        codigo_proceso: 'UNKNOWN',
-                        complejidad: '?' 
-                };
+            return { ...p, nombre_proceso: 'Proceso Desconocido', codigo_proceso: 'UNKNOWN', complejidad: 'BAJA' };
         }
     }));
+
+    // 2. complejidad
+    const pesoComplejidad = { 'ALTA': 3, 'MEDIA': 2, 'BAJA': 1, 'DESCONOCIDA': 0 };
+
+    // 3. ordenado pesonalizado
+    listaCompleta.sort((a, b) => {
+        switch (criterio) {
+            case 'antiguedad_asc': 
+                return new Date(a.fechaSolicitud) - new Date(b.fechaSolicitud);
+            
+            case 'antiguedad_desc': 
+                return new Date(b.fechaSolicitud) - new Date(a.fechaSolicitud);
+            
+            case 'complejidad_desc': 
+                return pesoComplejidad[b.complejidad] - pesoComplejidad[a.complejidad];
+            
+            case 'complejidad_asc': 
+                return pesoComplejidad[a.complejidad] - pesoComplejidad[b.complejidad];
+            
+            default:
+                return 0;
+        }
+    });
 
     return listaCompleta;
 }

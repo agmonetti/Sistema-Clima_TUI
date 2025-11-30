@@ -49,35 +49,20 @@ export async function menuSensores() {
     }
 }
 
-/**
- * Obtiene opciones del menú según el rol
- */
+
 function obtenerOpcionesSensores() {
-    const rol = session.getRol();
-    
+
     const opciones = [
+        new inquirer.Separator(),
+        { name: `← Volver al menu principal`, value: 'volver' },
+        new inquirer.Separator(),
         { name: `- Listar todos los sensores`, value: 'listar' },
-        { name: `- Buscar sensor`, value: 'buscar' }
+        { name: `- Buscar sensor`, value: 'buscar' },
+        { name: `- Crear nuevo sensor`, value: 'crear' },
+        { name: `- Eliminar sensor`, value: 'eliminar' },
+       
     ];
 
-    // Solo tecnicos pueden crear
-    if (rol === 'tecnico'){
-        opciones.push(
-            { name: `- Crear nuevo sensor`, value: 'crear' },
-        );
-    }
-
-    // Solo tecnico puede eliminar
-    if (rol === 'tecnico') {
-        opciones.push(
-            { name: `Eliminar sensor`, value: 'eliminar' }
-        );
-    }
-
-    opciones.push(
-        new inquirer.Separator(),
-        { name: `← Volver al menu principal`, value: 'volver' }
-    );
 
     return opciones;
 }
@@ -118,17 +103,18 @@ async function crearSensor() {
         {
             type: 'input',
             name: 'nombre',
-            message: 'Nombre del sensor:',
+            message: 'Nombre del sensor o 0 para cancelar:',
             validate: (input) => input ? true : 'El nombre es requerido'
+        
         },
         {
             type: 'list',
             name: 'tipo_sensor',
             message: 'Tipo de sensor:',
             choices: [
-                { name: '🌡️ Temperatura', value: 'temperatura' },
-                { name: '💧 Humedad', value: 'humedad' },
-                { name: '🌡️💧 Temperatura/Humedad', value: 'temperatura/humedad' }
+                { name: '🌡️    Temperatura', value: 'temperatura' },
+                { name: '💧    Humedad', value: 'humedad' },
+                { name: '🌡️💧  Temperatura/Humedad', value: 'temperatura/humedad' }
             ]
         },
         {
@@ -285,10 +271,12 @@ async function eliminarSensor() {
         {
             type: 'input',
             name: 'sensorId',
-            message: 'ID del sensor a eliminar:',
+            message: 'ID del sensor a eliminar o 0 para cancelar:',
             validate: (input) => input ? true : 'El ID es requerido'
         }
     ]);
+
+    if (sensorId === '0') return;
 
     const spinner = ora('Verificando sensor...').start();
 

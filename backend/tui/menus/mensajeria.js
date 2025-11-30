@@ -17,7 +17,7 @@ import { ICONOS, TITULO } from '../utils/colores.js';
 export async function menuMensajeria() {
     while (true) {
         limpiarPantalla();
-        console.log(TITULO(`\n${ICONOS.mensaje} MENSAJERIA\n`));
+        console.log(TITULO(`\n${ICONOS.mensaje}  MENSAJERIA\n`));
 
         const { opcion } = await inquirer.prompt([
             {
@@ -25,13 +25,15 @@ export async function menuMensajeria() {
                 name: 'opcion',
                 message: 'Selecciona una opcion:',
                 choices: [
+                    new inquirer.Separator(),
+                    { name: `← Volver al menu principal`, value: 'volver' },
+                    new inquirer.Separator(),
                     { name: `- Ver mis conversaciones`, value: 'listar' },
                     { name: `- Iniciar chat privado`, value: 'privado' },
                     { name: `- Crear grupo`, value: 'grupo' },
                     { name: `- Ver mensajes de una conversacion`, value: 'ver' },
                     { name: `- Enviar mensaje`, value: 'enviar' },
-                    new inquirer.Separator(),
-                    { name: `← Volver al menu principal`, value: 'volver' }
+                    
                 ]
             }
         ]);

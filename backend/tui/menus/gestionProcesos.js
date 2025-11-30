@@ -8,17 +8,37 @@ import { ICONOS, TITULO } from '../utils/colores.js';
 export async function menuGestionTecnica() {
     while (true) {
         limpiarPantalla();
-        console.log(TITULO(`\n 🏷️ GESTIÓN DE SOLICITUDES PENDIENTES\n`));
+        console.log(TITULO(`\n 🏷️  GESTIÓN DE SOLICITUDES PENDIENTES\n`));
 
-        const spinner = ora('Buscando trabajo pendiente...').start();
         
+        const { criterio } = await inquirer.prompt([
+            {
+                type: 'list',
+                name: 'criterio',
+                message: '¿Como queres ordenar la cola de procesos?',
+                choices: [
+                    new inquirer.Separator(),
+                    { name: '← Volver al menu principal', value: 'volver' },
+                    new inquirer.Separator(),
+                    { name: '- MAYOR complejidad', value: 'complejidad_desc' },
+                    { name: '- mas VIEJOS primero', value: 'antiguedad_asc' },
+                    { name: '- mas NUEVOS primero', value: 'antiguedad_desc' },
+                    { name: '- MENOR complejidad', value: 'complejidad_asc' },
+
+                ]
+            }
+        ]);
+
+        if (criterio === 'volver') return;
+        const spinner = ora('Buscando y ordenando solicitudes...').start();
+
         try {
-            const pendientes = await TransaccionService.listarPendientesParaTecnico();
+            const pendientes = await TransaccionService.listarPendientesParaTecnico(criterio);
             spinner.stop();
 
             if (pendientes.length === 0) {
                 console.log(chalk.green('No hay solicitudes pendientes!'));
-                await pausar();
+                await pausar(inquirer);
                 return;
             }
 
@@ -28,7 +48,7 @@ export async function menuGestionTecnica() {
                     type: 'list',
                     name: 'solicitudId',
                     message: `Hay ${pendientes.length} solicitudes esperando. Seleccionar una para EJECUTAR:`,
-                    pageSize: 25,
+                    pageSize: 28,
                     loop: false,
                     choices: [
                         new inquirer.Separator(),
@@ -41,9 +61,9 @@ export async function menuGestionTecnica() {
                             if (p.complejidad === 'BAJA') iconoComplejidad = '🟢'; // Rápido
                             if (p.complejidad === 'MEDIA') iconoComplejidad = '🟡'; // Normal
                             if (p.complejidad === 'ALTA') iconoComplejidad = '🔴'; // Lento/Pesado    
-
+                            const fechaCorta = new Date(p.fechaSolicitud).toLocaleTimeString('es-AR', { hour: '2-digit', minute:'2-digit',timeZone:'America/Argentina/Buenos_Aires' });
                             return {
-                                name: `${iconoComplejidad} [${p.complejidad}] Ticket #${p.solicitud_id} | ${p.nombre_proceso} | Cliente: ${p.usuario_nombre}`,
+                                name: `${iconoComplejidad} [${p.complejidad}] Ticket #${p.solicitud_id} (${fechaCorta}) | ${p.nombre_proceso} | Cliente: ${p.usuario_nombre}`,
                                 value: p.solicitud_id
                             };
                         })

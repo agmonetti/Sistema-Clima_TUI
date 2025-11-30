@@ -30,10 +30,11 @@ export async function menuTransacciones() {
                 name: 'opcion',
                 message: 'Selecciona una opción:',
                 choices: [
+                     new inquirer.Separator(),
+                    { name: `← Volver al menu principal`, value: 'volver' },
                     new inquirer.Separator(),
                     { name: `- Cargar dinero`, value: 'cargar' },
-                    new inquirer.Separator(),
-                    { name: `← Volver al menu principal`, value: 'volver' }
+                   
                 ]
             }
         ]);
@@ -46,9 +47,7 @@ export async function menuTransacciones() {
                 break;
         }
     }
-}
-
-/**
+}/**
  * Cargar dinero a la cuenta
  */
 async function cargarDinero() {
@@ -58,31 +57,43 @@ async function cargarDinero() {
     const usuario = session.getUser();
     console.log(chalk.dim(`Saldo actual: ${colorearSaldo(usuario.saldoActual)}\n`));
 
-    const { monto } = await inquirer.prompt([
+    const { montoInput } = await inquirer.prompt([
         {
-            type: 'number',
-            name: 'monto',
-            message: 'Monto a cargar ($):',
-            validate: (input) => {
-                if (isNaN(input)) return 'Ingresa un número válido';
-                if (input <= 0) return 'El monto debe ser positivo';
-                if (input > 10000) return 'El monto máximo es $10.000';
-                return true;
-            }
+            type: 'input',
+            name: 'montoInput',
+            message: 'Ingresa el monto a cargar ($) o 0 para cancelar:',
+            validate: (input) => input && input.trim() !== '' ? true : 'El monto es requerido'
         }
     ]);
 
+    if (montoInput === '0') return;
+
+    const monto = parseFloat(montoInput);
+
+    if (isNaN(monto) || monto <= 0) {
+        console.log(chalk.red(`\nError: "${montoInput}" no es un monto valido\n`));
+        await pausar();
+        return;
+    }
+
+     if (monto > 10000) {
+        console.log(chalk.red('\nError: El monto excede el limite permitido por unica operacion.\n'));
+        await pausar();
+        return;
+    }
+
+    
     const { confirmar } = await inquirer.prompt([
         {
             type: 'confirm',
             name: 'confirmar',
-            message: `¿Confirmas la carga de $${monto}?`,
+            message: `¿Confirmas la carga de ${colorearSaldo(monto)}?`,
             default: true
         }
     ]);
 
     if (!confirmar) {
-        mostrarInfo('Operación cancelada');
+        mostrarInfo('Operacion cancelada');
         await pausar();
         return;
     }
@@ -99,8 +110,8 @@ async function cargarDinero() {
         
         console.log('\n');
         mostrarCaja(
-            `${ICONOS.exito} RECARGA COMPLETADA\n\n` +
-            `Monto cargado: ${chalk.green('$' + monto)}\n` +
+            `${ICONOS.exito} RECARGA COMPLETA\n\n` +
+            `Monto cargado: ${chalk.green('$' + monto.toFixed(2))}\n` +
             `Nuevo saldo: ${colorearSaldo(nuevoSaldo)}`,
             { borderColor: 'green', padding: 1 }
         );

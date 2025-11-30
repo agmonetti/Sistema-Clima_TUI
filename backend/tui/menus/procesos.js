@@ -27,13 +27,14 @@ export async function menuProcesos() {
                 name: 'opcion',
                 message: 'Selecciona una opción:',
                 choices: [
+                     new inquirer.Separator(),
+                    { name: `← Volver al menu principal`, value: 'volver' },
                     new inquirer.Separator(),
                     { name: `- Ver catálogo de procesos`, value: 'catalogo' },
                     { name: `- Solicitar proceso`, value: 'solicitar' },
                     { name: `- Ver mi historial`, value: 'historial' },
                     { name: `- Ver detalle de solicitud`, value: 'detalle' },
-                    new inquirer.Separator(),
-                    { name: `← Volver al menu principal`, value: 'volver' }
+                   
                 ]
             }
         ]);
