@@ -49,10 +49,15 @@ export async function listarPendientesParaTecnico() {
             return { 
                 ...p, 
                 nombre_proceso: procesoMongo.nombre, 
-                codigo_proceso: procesoMongo.codigo 
+                codigo_proceso: procesoMongo.codigo,
+                complejidad: procesoMongo.complejidad || 'DESCONOCIDA'
             };
         } catch (e) {
-            return { ...p, nombre_proceso: 'Proceso Desconocido', codigo_proceso: 'UNKNOWN' };
+            return { ...p, 
+                        nombre_proceso: 'Proceso Desconocido',
+                        codigo_proceso: 'UNKNOWN',
+                        complejidad: '?' 
+                };
         }
     }));
 
@@ -170,6 +175,16 @@ export async function aprobarEjecucion(solicitudId) {
                 case 'CHECK_SALUD':
                     const salud = await MedicionRepository.obtenerEstadoSensor(parametros.sensorId);
                     resultadoDelProceso = { "Sensor": salud.sensor, "Estado Actual": salud.estado ? salud.estado.toUpperCase() : 'DESCONOCIDO' };
+                    break;
+                case 'REPORTE_PERIODICO':
+                    if (!parametros?.ciudad || !parametros?.anio) throw new Error('Faltan: ciudad, anio');
+                        resultadoDelProceso = await MedicionRepository.generarReportePeriodico({
+                            ciudad: parametros.ciudad,
+                            anio: parametros.anio,
+                            tipoReporte: parametros.tipoReporte || 'mensual',
+                            mes: parametros.mes
+
+                        });
                     break;
             }
 

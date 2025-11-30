@@ -28,7 +28,7 @@ export async function menuGestionTecnica() {
                     type: 'list',
                     name: 'solicitudId',
                     message: `Hay ${pendientes.length} solicitudes esperando. Seleccionar una para EJECUTAR:`,
-                    pageSize: 10,
+                    pageSize: 25,
                     loop: false,
                     choices: [
                         new inquirer.Separator(),
@@ -36,10 +36,17 @@ export async function menuGestionTecnica() {
                         new inquirer.Separator(),
                         new inquirer.Separator('Cola de Procesos'),
                         new inquirer.Separator(),
-                        ...pendientes.map(p => ({
-                            name: `Ticket #${p.solicitud_id} | ${p.usuario_nombre} | ${p.nombre_proceso}`,
-                            value: p.solicitud_id
-                        }))
+                        ...pendientes.map(p => {
+                            let iconoComplejidad = '⚪';
+                            if (p.complejidad === 'BAJA') iconoComplejidad = '🟢'; // Rápido
+                            if (p.complejidad === 'MEDIA') iconoComplejidad = '🟡'; // Normal
+                            if (p.complejidad === 'ALTA') iconoComplejidad = '🔴'; // Lento/Pesado    
+
+                            return {
+                                name: `${iconoComplejidad} [${p.complejidad}] Ticket #${p.solicitud_id} | ${p.nombre_proceso} | Cliente: ${p.usuario_nombre}`,
+                                value: p.solicitud_id
+                            };
+                        })
                     ]
                 }
             ]);

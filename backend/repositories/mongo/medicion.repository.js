@@ -145,11 +145,125 @@ export async function listarSensores(ciudad) {
         throw new Error(`Error listando sensores: ${error.message}`);
     }
 }
-// NUEVA FUNCIÓN: Obtener lista de ciudades únicas para el combo
+
 export async function listarCiudades() {
     try {
-        return await Sensor.distinct('ubicacion.ciudad');
+        const ciudades = await Sensor.distinct('ubicacion.ciudad');
+        return ciudades.sort(); 
     } catch (error) {
-        throw new Error(`Error obteniendo ciudades: ${error.message}`);
+        throw new Error(`Error listando ciudades: ${error.message}`);
+    }
+}
+
+export async function generarReportePeriodico({ ciudad, anio, tipoReporte, mes }) {
+    try {
+        
+        let fechaInicio, fechaFin;
+
+        if(mes){ // equivale a !null
+            // Mes específico
+            fechaInicio = new Date(Date.UTC(anio, mes - 1, 1, 0, 0, 0));
+            fechaFin = new Date(Date.UTC(anio, mes, 0, 23, 59, 59, 999));
+        } else {
+            // Todo el año
+            fechaInicio = new Date(Date.UTC(anio, 0, 1, 0, 0, 0));
+            fechaFin = new Date(Date.UTC(anio, 11, 31, 23, 59, 59, 999));
+        }
+
+        let groupById = { ciudad: '$datos_sensor.ubicacion.ciudad' };
+        
+        if (tipoReporte === 'mensual') {
+            groupById.mes = { $month: '$timestamp' };
+        } else {
+            groupById.mes = "ANUAL"; 
+        }
+
+        const reporte = await Medicion.aggregate([
+            // 1. Filtramos por la fecha primero para reducir la cantidad de documentos a procesar
+            { 
+                $match: { 
+                    timestamp: { $gte: fechaInicio, $lte: fechaFin } 
+                } 
+            },
+            
+            // 2.  Unimos cada medición con los datos de su sensor para saber la ciudad
+            {
+                $lookup: {
+                    from: 'sensores',       // Nombre de la colección destino
+                    localField: 'sensor_id',// Campo en Medicion
+                    foreignField: '_id',    // Campo en Sensor
+                    as: 'datos_sensor'      // Nombre del array resultante
+                }
+            },
+            
+            // 3. como el lookup devuelve un array, lo separamos
+            { $unwind: '$datos_sensor' },
+
+            // 4.  Ahora que tenemos los datos del sensor, filtramos por la ciudad pedida
+            {
+                $match: {
+                    'datos_sensor.ubicacion.ciudad': { $regex: new RegExp(ciudad, 'i') }
+                }
+            },
+
+            // 5.  Agrupamos por MES para sacar el promedio
+            {
+                $group: {
+                    _id: groupById,
+                    tempPromedio: { $avg: '$temperatura' },
+                    humPromedio: { $avg: '$humedad' },
+                    tempMax: { $max: '$temperatura' },
+                    tempMin: { $min: '$temperatura' },
+                    cantMediciones: { $sum: 1 }
+                }
+            },
+
+            // 6. ordenamos
+            { $sort: { '_id.mes': 1 } },
+
+            // 7. organizamos
+            {
+                $project: {
+                    _id: 0,
+                    mes: '$_id.mes',
+                    ciudad: '$_id.ciudad',
+                    tempPromedio: { $round: ['$tempPromedio', 2] }, 
+                    humPromedio: { $round: ['$humPromedio', 2] },
+                    tempMax: 1,
+                    tempMin: 1,
+                    cantMediciones: 1
+                }
+            }
+        ]);
+
+        const MESES = [
+            "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+            "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+        ]
+
+        return reporte.map(r => {
+            let etiquetaPeriodo = '';
+            
+            if (typeof r.mes === 'number') {
+                etiquetaPeriodo = MESES[r.mes - 1] || 'FALLA.';
+            } 
+            
+            else if (r.mes === 'ANUAL') {
+                etiquetaPeriodo = `Año ${anio}`;
+            }
+
+            return {
+                PERIODO: etiquetaPeriodo,
+                CIUDAD: r.ciudad,
+                TEMP_PROM: r.tempPromedio + '°C',
+                HUM_PROM: r.humPromedio + '%',
+                MAX: r.tempMax + '°C',
+                MIN: r.tempMin + '°C',
+                CANT: r.cantMediciones
+            };
+        });
+
+    } catch (error) {
+        throw new Error(`Error en reporte periodico: ${error.message}`);
     }
 }

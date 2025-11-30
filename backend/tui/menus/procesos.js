@@ -1,7 +1,4 @@
-/**
- * Menú de gestión de procesos
- * Catálogo, solicitud de procesos y historial
- */
+import Table from 'cli-table3';
 import inquirer from 'inquirer';
 import chalk from 'chalk';
 import ora from 'ora';
@@ -228,6 +225,123 @@ const spinnerEjec = ora('Enviando solicitud...').start();
  * Obtiene los parámetros necesarios según el código del proceso
  */
 async function obtenerParametrosProceso(codigo, sensores) {
+   if (codigo === 'REPORTE_PERIODICO') {
+        
+        // 1. Ciudad
+        const ciudades = await MedicionRepository.listarCiudades();
+        if (ciudades.length === 0) {
+            mostrarError('No hay ciudades registradas.');
+            return null;
+        }
+
+        const resCiudad = await inquirer.prompt([
+            {
+                type: 'list',
+                name: 'ciudad',
+                message: 'Seleccionar la Ciudad:',
+                loop: false,
+                pageSize: 10,
+                choices: [
+                    new inquirer.Separator(),
+                    { name: 'Volver al menu anterior', value: 'volver' },
+                     new inquirer.Separator(),
+                     ...ciudades
+                    ]
+            }
+        ]);
+        if (resCiudad.ciudad === 'volver') return null;
+
+        // 2. Tipo de Reporte (Anual vs Mensual)
+        const { tipoReporte } = await inquirer.prompt([
+            {
+                type: 'list',
+                name: 'tipoReporte',
+                message: '¿Que tipo de proceso periodico queres?',
+                choices: [
+                    { name: 'Mensual', value: 'mensual' },
+                    { name: 'Anual', value: 'anual' }
+                ]
+            }
+        ]);
+
+        let mesEspecifico = null; // null significa "Todos los meses"
+
+        if (tipoReporte === 'mensual') {
+            const { alcance } = await inquirer.prompt([
+                {
+                    type: 'list',
+                    name: 'alcance',
+                    message: '¿Que meses queres analizar?',
+                    choices: [
+                        { name: 'Todos los meses del año', value: 'todos' },
+                        { name: 'Mes especifico', value: 'especifico' }
+                    ]
+                }
+            ]);
+
+            if (alcance === 'especifico') {
+                const { mesIndex } = await inquirer.prompt([
+                    {
+                        type: 'list',
+                        name: 'mesIndex', // Guardamos el número (1-12)
+                        message: 'Selecciona el mes:',
+                        loop: false,
+                        pageSize: 20,
+                        choices: [
+                            new inquirer.Separator(),
+                            {name: 'Volver al menu anterior', value: 'volver'},
+                            new inquirer.Separator(),
+
+                            { name: 'Enero', value: 1 }, 
+                            { name: 'Febrero', value: 2 },
+                            { name: 'Marzo', value: 3 },
+                            { name: 'Abril', value: 4 },
+                            { name: 'Mayo', value: 5 }, 
+                            { name: 'Junio', value: 6 },
+                            { name: 'Julio', value: 7 },
+                            { name: 'Agosto', value: 8 },
+                            { name: 'Septiembre', value: 9 },
+                            { name: 'Octubre', value: 10 },
+                            { name: 'Noviembre', value: 11 },
+                            { name: 'Diciembre', value: 12 }
+                        ]
+                    }
+                ]);
+                mesEspecifico = mesIndex;
+            }
+        }
+
+        // 4. Año
+        const { anio } = await inquirer.prompt([
+            {
+                type: 'input',
+                name: 'anio',
+                message: 'Ingresa el Año (YYYY) o escribir 0 para volver:',
+                default: new Date().getFullYear(),
+                validate: (input) => {
+                    if (input == '0') return true; 
+                    return /^(20\d{2})$/.test(input) ? true : 'Año fuera del rango (2000-2099)';
+                }
+            }
+        ]);
+
+        if (anio === '0') return null;
+    
+        let nombreDisplay = `Reporte ${tipoReporte.toUpperCase()} - ${resCiudad.ciudad} (${anio})`;
+        if (mesEspecifico) {
+            const nombresMeses = ["", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+            nombreDisplay += ` [${nombresMeses[mesEspecifico]}]`;
+        }
+
+        return {
+            esReportePeriodico: true,
+            ciudad: resCiudad.ciudad,
+            anio: Number(anio),
+            tipoReporte,
+            mes: mesEspecifico, // (null o 1-12)
+            sensorNombre: nombreDisplay
+        };
+    }
     if (sensores.length === 0) {
         mostrarError('No hay sensores disponibles para procesar');
         return null;
@@ -386,7 +500,7 @@ function formatearResultado(data) {
         output += `   \nSensor: ${chalk.white(m.sensorNombre || m.sensorId)}\n`;
         if (m.fechaInicio) output += `   Rango:  ${fInicio} al ${fFin}\n`;
         if (m.umbral) output += `   Umbral: ${m.umbral}\n`;
-        if (m.origen) output += `   Fuente: ${m.origen}\n`; // Si usas caché
+        if (m.origen) output += ` Fuente: ${m.origen}\n`; // Si usas caché
         
         output += chalk.cyan.bold('─────────────────────────────────────\n');
     }
@@ -433,7 +547,7 @@ function formatearResultado(data) {
         .filter(Boolean) // Quitar nulos
         .join('\n');
 
-    return output + chalk.bold('📊 RESULTADOS:\n') + metricas;
+    return output + chalk.cyan.bold('\nRESULTADOS:\n') + metricas;
 }
 
 /**
@@ -491,7 +605,6 @@ async function verDetalleSolicitud() {
     limpiarPantalla();
     console.log(TITULO(`\n🔍 DETALLE DE SOLICITUD\n`));
 
-    // CAMBIO 1: Usamos type 'input' para tener control total y evitar el NaN
     const { inputId } = await inquirer.prompt([
         {
             type: 'input',
@@ -530,7 +643,7 @@ async function verDetalleSolicitud() {
         console.log('\n');
 
         // 3. Mostrar cabecera
-        const estadoColor = solicitud.isCompleted ? chalk.green('COMPLETADO') : chalk.yellow('PENDIENTE/FALLIDO');
+        const estadoColor = solicitud.isCompleted ? chalk.green('COMPLETADO') : chalk.yellow('PENDIENTE');
         console.log(`${chalk.cyan.bold('DETALLES DE LA SOLICITUD:')}`);
         console.log(chalk.cyan('─────────────────────────────────────\n'));
         console.log(` ID Solicitud:  ${chalk.bold(solicitud.solicitud_id)}`);
@@ -540,11 +653,46 @@ async function verDetalleSolicitud() {
         if(solicitud.factura_id) console.log(` Ticket:        #${solicitud.factura_id}`);
         console.log(chalk.dim('\n─────────────────────────────────────\n'));
 
-        // 4. Mostrar contenido (Resultado + Parametros)
+        
         if (solicitud.resultado) {
-            console.log(formatearResultado(solicitud.resultado));
+            
+            // 1. parametros
+            if (solicitud.resultado._metadatos) {
+                console.log(formatearResultado({ _metadatos: solicitud.resultado._metadatos }));
+                // limpieza parametros
+                delete solicitud.resultado._metadatos;
+            }
+
+            // 2. datos reales para mostrar
+            let datosParaMostrar = solicitud.resultado;
+            
+            if (solicitud.resultado.datos && solicitud.resultado._esArrayOriginalmente) {
+                datosParaMostrar = solicitud.resultado.datos;
+            }
+
+            // 3. si es u array de datos mostramos una tabla
+            if (Array.isArray(datosParaMostrar) && datosParaMostrar.length > 0) {
+                const columnas = Object.keys(datosParaMostrar[0]);
+                
+                const table = new Table({
+                    head: columnas.map(c => chalk.cyan(c.toUpperCase())),
+                    wordWrap: true
+                });
+
+                datosParaMostrar.forEach(fila => {
+                    // Mapeamos los valores a un array simple para la tabla
+                    table.push(Object.values(fila).map(val => val === null ? '-' : val));
+                });
+
+                console.log(table.toString());
+                console.log(`\n Se encontraron ${chalk.bold(datosParaMostrar.length)} registros.`);
+
+            } else {
+                console.log(formatearResultado(datosParaMostrar));
+            }
+
         } else {
-            console.log(chalk.dim('No hay resultados almacenados para esta solicitud.'));
+            console.log(chalk.dim('No hay resultados para esta solicitud.'));
         }
 
         await pausar();

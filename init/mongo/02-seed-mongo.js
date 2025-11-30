@@ -11,13 +11,13 @@ db.conversaciones.deleteMany({});
 // ------------------------------------------------------------
 print("⏳ Insertando procesos...");
 db.proceso.insertMany([
-    { nombre: 'Informe Máx/Mín', descripcion: 'Estadísticas extremas', costo: 50.00, codigo: 'INFORME_MAXIMAS_MINIMAS' },
-    { nombre: 'Informe Promedios', descripcion: 'Tendencia media', costo: 40.00, codigo: 'INFORME_PROMEDIOS' },
-    { nombre: 'Detección de Alertas', descripcion: 'Búsqueda de valores fuera de rango', costo: 25.00, codigo: 'BUSCAR_ALERTAS' },
-    { nombre: 'Consulta Raw Data', descripcion: 'Descarga de datos crudos', costo: 10.00, codigo: 'CONSULTAR_DATOS' },
-    { nombre: 'Análisis de Desviación', descripcion: 'Cálculo de desviaciones estándar', costo: 35.00, codigo: 'ANALISIS_DESVIACION' },
-    { nombre: 'Estado de Salud', descripcion: 'Verifica batería y conectividad', costo: 15.00, codigo: 'CHECK_SALUD' },
-
+    { nombre: 'Informe Máx/Mín', descripcion: 'Estadísticas extremas', costo: 50.00, codigo: 'INFORME_MAXIMAS_MINIMAS',complejidad:'MEDIA' },
+    { nombre: 'Informe Promedios', descripcion: 'Tendencia media', costo: 40.00, codigo: 'INFORME_PROMEDIOS',complejidad:'MEDIA' },
+    { nombre: 'Consulta Raw Data', descripcion: 'Descarga de datos crudos', costo: 10.00, codigo: 'CONSULTAR_DATOS',complejidad:'BAJA' },
+    { nombre: 'Detección de Alertas', descripcion: 'Búsqueda de valores fuera de rango', costo: 25.00, codigo: 'BUSCAR_ALERTAS',complejidad:'MEDIA' },
+    { nombre: 'Análisis de Desviación', descripcion: 'Cálculo de desviaciones estándar', costo: 35.00, codigo: 'ANALISIS_DESVIACION', complejidad:'MEDIA' },
+    { nombre: 'Estado de Salud', descripcion: 'Verifica batería y conectividad', costo: 15.00, codigo: 'CHECK_SALUD', complejidad:'BAJA' },
+    { nombre: 'Reportes Periodicos',descripcion: 'Promedios agrupados por Ciudad/Mes', costo: 150.00,  codigo: 'REPORTE_PERIODICO',complejidad: 'ALTA' }
 ]);
 print("✅ Procesos insertados.");
 
