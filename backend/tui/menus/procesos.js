@@ -6,7 +6,7 @@ import * as ProcesoRepository from '../../repositories/mongo/proceso.repository.
 import * as TransaccionService from '../../services/transaccion.service.js';
 import * as MedicionRepository from '../../repositories/mongo/medicion.repository.js';
 import { session } from '../session.js';
-import { limpiarPantalla, mostrarExito, mostrarError, mostrarInfo, mostrarCaja } from '../utils/helpers.js';
+import { limpiarPantalla, mostrarExito, mostrarError, mostrarInfo, mostrarCaja, formatearFecha } from '../utils/helpers.js';
 import { crearTablaProcesos, crearTablaHistorial } from '../utils/tablas.js';
 import { ICONOS, TITULO, colorearSaldo, colorearTemperatura } from '../utils/colores.js';
 
@@ -124,7 +124,7 @@ async function solicitarProceso() {
                 loop: false,
                 choices:[
                     new inquirer.Separator(),
-                    {name:'Volver al menu anterior' , value:'volver'},
+                    {name:'← Volver al menu anterior' , value:'volver'},
                     new inquirer.Separator(),
                     ...procesos.map((p, index) => ({
                         name: `${index + 1}. ${p.nombre} - $${p.costo} - ${p.descripcion || ''}`,
@@ -668,7 +668,7 @@ async function verDetalleSolicitud() {
         console.log(` ID Solicitud:  ${chalk.bold(solicitud.solicitud_id)}`);
         console.log(` Cliente:       ${chalk.bold(solicitud.usuario_nombre)} - Mail: (${solicitud.usuario_mail})`);
         console.log(` Servicio:      ${chalk.bold(solicitud.nombre_proceso || 'N/A')}`); 
-        console.log(` Fecha:         ${new Date(solicitud.fechaSolicitud).toLocaleString()}`);
+        console.log(` Fecha:         ${formatearFecha(solicitud.fechaSolicitud)}`);
         console.log(` Estado:        ${estadoColor}`);
         if(solicitud.factura_id) console.log(` Ticket:        #${solicitud.factura_id}`);
         console.log(chalk.dim('\n─────────────────────────────────────\n'));
