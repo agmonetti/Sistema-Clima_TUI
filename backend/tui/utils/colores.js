@@ -1,7 +1,3 @@
-/**
- * Paleta de colores y constantes de estilo para la TUI
- * Utiliza chalk para colorear la salida de consola
- */
 import chalk from 'chalk';
 
 // Colores para estados
@@ -18,18 +14,15 @@ export const ICONOS = {
     exito: '✓',
     error: '✗',
     advertencia: '⚠',
+    cuenta: '🔍',
     info: 'ℹ',
     usuario: '👤',
-    sensor: '📡',
-    temperatura: '🌡️',
-    mensaje: '💬',
-    dinero: '💰',
-    proceso: '⚙️',
-    salir: '🚪',
     menu: '📋',
     flecha: '→',
     activo: '●',
-    inactivo: '○'
+    saldo: '💰',
+    inactivo: '○',
+    mensaje: '✉️'
 };
 
 // Funciones de ayuda para colorear según estado

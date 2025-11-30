@@ -17,7 +17,7 @@ import { ICONOS, TITULO } from '../utils/colores.js';
 export async function menuSensores() {
     while (true) {
         limpiarPantalla();
-        console.log(TITULO(`\n${ICONOS.sensor} GESTIÓN DE SENSORES\n`));
+        console.log(TITULO(`\n 🕹️ GESTIÓN DE SENSORES\n`));
 
         const opciones = obtenerOpcionesSensores();
 
@@ -56,27 +56,27 @@ function obtenerOpcionesSensores() {
     const rol = session.getRol();
     
     const opciones = [
-        { name: `${ICONOS.menu} Listar todos los sensores`, value: 'listar' },
-        { name: `${ICONOS.info} Buscar sensor`, value: 'buscar' }
+        { name: `- Listar todos los sensores`, value: 'listar' },
+        { name: `- Buscar sensor`, value: 'buscar' }
     ];
 
     // Solo tecnicos pueden crear
     if (rol === 'tecnico'){
         opciones.push(
-            { name: `${ICONOS.exito} Crear nuevo sensor`, value: 'crear' },
+            { name: `- Crear nuevo sensor`, value: 'crear' },
         );
     }
 
     // Solo tecnico puede eliminar
     if (rol === 'tecnico') {
         opciones.push(
-            { name: `${ICONOS.error} Eliminar sensor`, value: 'eliminar' }
+            { name: `Eliminar sensor`, value: 'eliminar' }
         );
     }
 
     opciones.push(
         new inquirer.Separator(),
-        { name: `${ICONOS.flecha} Volver al menu principal`, value: 'volver' }
+        { name: `← Volver al menu principal`, value: 'volver' }
     );
 
     return opciones;
@@ -279,7 +279,7 @@ async function buscarSensor() {
  */
 async function eliminarSensor() {
     limpiarPantalla();
-    console.log(TITULO(`\n${ICONOS.error} ELIMINAR SENSOR\n`));
+    console.log(TITULO(`\nELIMINAR SENSOR\n`));
 
     const { sensorId } = await inquirer.prompt([
         {

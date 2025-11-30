@@ -32,12 +32,12 @@ export async function menuUsuarios() {
                 name: 'opcion',
                 message: 'Selecciona una opción:',
                 choices: [
-                    { name: `${ICONOS.menu} Ver todos los usuarios`, value: 'listar' },
-                    { name: `${ICONOS.info} Buscar usuario por ID`, value: 'buscar' },
-                    { name: `${ICONOS.advertencia} Desactivar usuario`, value: 'desactivar' },
-                    { name: `${ICONOS.exito} Reactivar usuario`, value: 'reactivar' },
+                    { name: `- Ver todos los usuarios`, value: 'listar' },
+                    { name: `- Buscar usuario por ID`, value: 'buscar' },
+                    { name: `- Desactivar usuario`, value: 'desactivar' },
+                    { name: `- Reactivar usuario`, value: 'reactivar' },
                     new inquirer.Separator(),
-                    { name: `${ICONOS.flecha} Volver al menú principal`, value: 'volver' }
+                    { name: `← Volver al menu principal`, value: 'volver' }
                 ]
             }
         ]);
@@ -252,7 +252,7 @@ async function reactivarUsuario() {
 
         const spinnerReactivar = ora('Reactivando usuario...').start();
         await UsuarioService.revivirUsuario(userId);
-        spinnerReactivar.succeed('Usuario reactivado correctamente');
+        spinnerReactivar.succeed(' ✅ Usuario reactivado correctamente');
         
         await pausar();
     } catch (error) {

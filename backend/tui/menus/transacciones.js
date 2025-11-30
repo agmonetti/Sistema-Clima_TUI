@@ -16,12 +16,12 @@ import { ICONOS, TITULO, colorearSaldo } from '../utils/colores.js';
 export async function menuTransacciones() {
     while (true) {
         limpiarPantalla();
-        console.log(TITULO(`\n${ICONOS.dinero} MI CUENTA\n`));
+        console.log(TITULO(`\n${ICONOS.cuenta} MI CUENTA\n`));
 
         const usuario = session.getUser();
         console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
         console.log(`  ${ICONOS.usuario} Usuario: ${chalk.bold(usuario.nombre)}`);
-        console.log(`  ${ICONOS.dinero} Saldo actual: ${colorearSaldo(usuario.saldoActual)}`);
+        console.log(`  ${ICONOS.saldo} Saldo actual: ${colorearSaldo(usuario.saldoActual)}`);
         console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'));
 
         const { opcion } = await inquirer.prompt([
@@ -30,9 +30,10 @@ export async function menuTransacciones() {
                 name: 'opcion',
                 message: 'Selecciona una opción:',
                 choices: [
-                    { name: `${ICONOS.exito} Cargar dinero`, value: 'cargar' },
                     new inquirer.Separator(),
-                    { name: `${ICONOS.flecha} Volver al menú principal`, value: 'volver' }
+                    { name: `- Cargar dinero`, value: 'cargar' },
+                    new inquirer.Separator(),
+                    { name: `← Volver al menu principal`, value: 'volver' }
                 ]
             }
         ]);

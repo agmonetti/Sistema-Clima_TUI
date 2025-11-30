@@ -23,10 +23,10 @@ export async function pantallaAuth() {
             message: 'Selecciona una opción:',
             choices: [
                 new inquirer.Separator(),
-                { name: `${ICONOS.usuario} Iniciar Sesión`, value: 'login' },
-                { name: `${ICONOS.exito} Registrarse`, value: 'registro' },
+                { name: `Iniciar Sesión`, value: 'login' },
+                { name: `Registrarse`, value: 'registro' },
                 new inquirer.Separator(),
-                { name: `${ICONOS.salir} Salir`, value: 'salir' }
+                { name: `Salir`, value: 'salir' }
             ]
         }
     ]);

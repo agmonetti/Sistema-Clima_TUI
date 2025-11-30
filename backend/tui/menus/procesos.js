@@ -16,7 +16,7 @@ import { ICONOS, TITULO, colorearSaldo, colorearTemperatura } from '../utils/col
 export async function menuProcesos() {
     while (true) {
         limpiarPantalla();
-        console.log(TITULO(`\n${ICONOS.proceso} PROCESOS Y SERVICIOS\n`));
+        console.log(TITULO(`\n 📜 PROCESOS Y SERVICIOS\n`));
 
         const usuario = session.getUser();
         console.log(chalk.dim(`Saldo actual: ${colorearSaldo(usuario.saldoActual)}\n`));
@@ -27,12 +27,13 @@ export async function menuProcesos() {
                 name: 'opcion',
                 message: 'Selecciona una opción:',
                 choices: [
-                    { name: `${ICONOS.menu} Ver catálogo de procesos`, value: 'catalogo' },
-                    { name: `${ICONOS.proceso} Solicitar proceso`, value: 'solicitar' },
-                    { name: `${ICONOS.info} Ver mi historial`, value: 'historial' },
-                    { name: `${ICONOS.lupa || '🔍'} Ver detalle de solicitud`, value: 'detalle' },
                     new inquirer.Separator(),
-                    { name: `${ICONOS.flecha} Volver al menú principal`, value: 'volver' }
+                    { name: `- Ver catálogo de procesos`, value: 'catalogo' },
+                    { name: `- Solicitar proceso`, value: 'solicitar' },
+                    { name: `- Ver mi historial`, value: 'historial' },
+                    { name: `- Ver detalle de solicitud`, value: 'detalle' },
+                    new inquirer.Separator(),
+                    { name: `← Volver al menu principal`, value: 'volver' }
                 ]
             }
         ]);
@@ -603,7 +604,7 @@ async function pausar() {
 
 async function verDetalleSolicitud() {
     limpiarPantalla();
-    console.log(TITULO(`\n🔍 DETALLE DE SOLICITUD\n`));
+    console.log(TITULO(`\n ${ICONOS.cuenta}DETALLE DE SOLICITUD\n`));
 
     const { inputId } = await inquirer.prompt([
         {

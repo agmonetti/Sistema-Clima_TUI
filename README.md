@@ -3,12 +3,12 @@
 Sistema poliglota de monitoreo de sensores climáticos con interfaz de terminal interactiva.
 Una TUI (Text User Interface) es una interfaz de usuario basada en texto que se ejecuta en la terminal. A diferencia de una API REST que expone endpoints HTTP y devuelve JSON, la TUI ofrece:
 
-Menús navegables con flechas del teclado (↑↓)
-Inputs interactivos con validación en tiempo real
-Contraseñas ocultas (se muestran como ***)
-Tablas ASCII con bordes y colores
-Colores para destacar información importante
-Spinners que indican operaciones en progreso
+- Menús navegables con flechas del teclado (↑↓)
+- Inputs interactivos con validación en tiempo real
+- Contraseñas ocultas (se muestran como ***)
+- Tablas ASCII con bordes y colores
+- Colores para destacar información importante
+- Spinners que indican operaciones en progreso
 
 ##  Descripción
 

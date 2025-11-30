@@ -15,7 +15,7 @@ import { ICONOS, TITULO, colorearTemperatura } from '../utils/colores.js';
 export async function menuMediciones() {
     while (true) {
         limpiarPantalla();
-        console.log(TITULO(`\n${ICONOS.temperatura} MEDICIONES\n`));
+        console.log(TITULO(`\n ⏲️  MEDICIONES\n`));
 
         const { opcion } = await inquirer.prompt([
             {
@@ -23,11 +23,11 @@ export async function menuMediciones() {
                 name: 'opcion',
                 message: 'Selecciona una opción:',
                 choices: [
-                    { name: `${ICONOS.menu} Ver últimas mediciones de un sensor`, value: 'ultimas' },
-                    { name: `${ICONOS.info} Ver reporte de rango de fechas`, value: 'reporte' },
-                    { name: `${ICONOS.advertencia} Buscar alertas`, value: 'alertas' },
+                    { name: `- Ver últimas mediciones de un sensor`, value: 'ultimas' },
+                    { name: `- Ver reporte de rango de fechas`, value: 'reporte' },
+                    { name: `- Buscar alertas`, value: 'alertas' },
                     new inquirer.Separator(),
-                    { name: `${ICONOS.flecha} Volver al menú principal`, value: 'volver' }
+                    { name: `← Volver al menu principal`, value: 'volver' }
                 ]
             }
         ]);
@@ -53,7 +53,7 @@ export async function menuMediciones() {
  */
 async function verUltimasMediciones() {
     limpiarPantalla();
-    console.log(TITULO(`\n${ICONOS.temperatura} ÚLTIMAS MEDICIONES\n`));
+    console.log(TITULO(`\n ⏲️ ÚLTIMAS MEDICIONES\n`));
 
     // Primero listar sensores disponibles
     const spinnerSensores = ora('Cargando sensores...').start();
@@ -215,7 +215,7 @@ async function verReporteRango() {
  */
 async function buscarAlertas() {
     limpiarPantalla();
-    console.log(TITULO(`\n${ICONOS.advertencia} BUSCAR ALERTAS\n`));
+    console.log(TITULO(`\n${ICONOS.advertencia}  BUSCAR ALERTAS\n`));
 
     const spinnerSensores = ora('Cargando sensores...').start();
 

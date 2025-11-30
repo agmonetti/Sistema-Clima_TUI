@@ -37,7 +37,7 @@ export function mostrarExito(mensaje) {
  * Muestra un mensaje de error
  */
 export function mostrarError(mensaje) {
-    console.log(ERROR(`${ICONOS.error} ${mensaje}`));
+    console.log(ERROR(`${mensaje}`));
 }
 
 /**
@@ -115,7 +115,7 @@ export function mostrarInfoUsuario(usuario) {
     const info = [
         `${ICONOS.usuario} Usuario: ${chalk.bold(usuario.nombre)}`,
         `${ICONOS.info} Rol: ${chalk.bold(usuario.rol)}`,
-        `${ICONOS.dinero} Saldo: ${chalk.bold('$' + (usuario.saldoActual || 0))}`
+        `${ICONOS.saldo} Saldo: ${chalk.bold('$' + (usuario.saldoActual || 0))}`
     ].join('  |  ');
     
     console.log(chalk.dim('─'.repeat(70)));

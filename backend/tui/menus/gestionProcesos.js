@@ -8,7 +8,7 @@ import { ICONOS, TITULO } from '../utils/colores.js';
 export async function menuGestionTecnica() {
     while (true) {
         limpiarPantalla();
-        console.log(TITULO(`\n${ICONOS.proceso} GESTIÓN DE SOLICITUDES PENDIENTES\n`));
+        console.log(TITULO(`\n 🏷️ GESTIÓN DE SOLICITUDES PENDIENTES\n`));
 
         const spinner = ora('Buscando trabajo pendiente...').start();
         
@@ -32,7 +32,7 @@ export async function menuGestionTecnica() {
                     loop: false,
                     choices: [
                         new inquirer.Separator(),
-                        { name: 'Volver al menu principal', value: 'volver' },
+                        { name: '← Volver al menu principal', value: 'volver' },
                         new inquirer.Separator(),
                         new inquirer.Separator('Cola de Procesos'),
                         new inquirer.Separator(),

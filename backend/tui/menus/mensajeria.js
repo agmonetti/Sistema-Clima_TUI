@@ -25,13 +25,13 @@ export async function menuMensajeria() {
                 name: 'opcion',
                 message: 'Selecciona una opcion:',
                 choices: [
-                    { name: `${ICONOS.menu} Ver mis conversaciones`, value: 'listar' },
-                    { name: `${ICONOS.usuario} Iniciar chat privado`, value: 'privado' },
-                    { name: `${ICONOS.mensaje} Crear grupo`, value: 'grupo' },
-                    { name: `${ICONOS.info} Ver mensajes de una conversacion`, value: 'ver' },
-                    { name: `${ICONOS.exito} Enviar mensaje`, value: 'enviar' },
+                    { name: `- Ver mis conversaciones`, value: 'listar' },
+                    { name: `- Iniciar chat privado`, value: 'privado' },
+                    { name: `- Crear grupo`, value: 'grupo' },
+                    { name: `- Ver mensajes de una conversacion`, value: 'ver' },
+                    { name: `- Enviar mensaje`, value: 'enviar' },
                     new inquirer.Separator(),
-                    { name: `${ICONOS.flecha} Volver al menu principal`, value: 'volver' }
+                    { name: `← Volver al menu principal`, value: 'volver' }
                 ]
             }
         ]);

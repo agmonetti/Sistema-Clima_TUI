@@ -14,7 +14,7 @@ import { menuGestionTecnica} from './gestionProcesos.js';
 
 export async function menuPrincipal() {
     const usuario = session.getUser();
-    
+  
     while (true) {
         limpiarPantalla();
         
@@ -31,7 +31,7 @@ export async function menuPrincipal() {
             {
                 type: 'list',
                 name: 'opcion',
-                message: '¿Qué deseas hacer?',
+                message: '¿Qué deseas hacer?\n',
                 choices: opciones,
                 pageSize: 14
             }
@@ -58,11 +58,13 @@ export async function menuPrincipal() {
  * Obtiene las opciones del menú según el rol del usuario
  */
 function obtenerOpcionesPorRol(rol) {
+
     const opcionesBase = [
         new inquirer.Separator(),
-        { name: `${ICONOS.proceso} Procesos`, value: 'procesos' },
-        { name: `${ICONOS.mensaje} Mensajería`, value: 'mensajeria' },
-        { name: `${ICONOS.dinero} Finanzas`, value: 'transacciones' },
+        { name: `- Procesos`, value: 'procesos' },
+        { name: `- Mensajería`, value: 'mensajeria' },
+
+        { name: `- Finanzas`, value: 'transacciones' },
     ];
 
     // Agregar opciones de administración solo para admin
@@ -70,9 +72,9 @@ function obtenerOpcionesPorRol(rol) {
         opcionesBase.push(
             new inquirer.Separator(),
             new inquirer.Separator('Opciones de Admin '),
-            { name: `${ICONOS.temperatura} Mediciones`, value: 'mediciones' },
-            { name: `${ICONOS.usuario} Gestión de Usuarios`, value: 'usuarios' },
-            {name: 'Estado sistema', value: 'estado_sistema'}
+            { name: `- Mediciones`, value: 'mediciones' },
+            { name: `- Gestión de Usuarios`, value: 'usuarios' },
+            {name: '- Estado sistema', value: 'estado_sistema'}
         );
     }
 
@@ -80,10 +82,10 @@ function obtenerOpcionesPorRol(rol) {
         opcionesBase.push(
             new inquirer.Separator(),
             new inquirer.Separator('Opciones de Técnico '),
-            { name: `${ICONOS.sensor} Sensores`, value: 'sensores' },
-            { name: `${ICONOS.temperatura} Mediciones`, value: 'mediciones' },
-            {name: 'Estado del Sistema', value: 'estado_sistema'},
-            {name: 'Procesos Pendientes', value: 'gestion_pendientes'}
+            { name: `- Sensores`, value: 'sensores' },
+            { name: `- Mediciones`, value: 'mediciones' },
+            {name: '- Estado del Sistema', value: 'estado_sistema'},
+            {name: '- Procesos Pendientes', value: 'gestion_pendientes'}
         );
     }
 
@@ -91,8 +93,8 @@ function obtenerOpcionesPorRol(rol) {
     console.log('\n')
     opcionesBase.push(
         new inquirer.Separator(chalk.dim('──────────')),
-        { name: `${ICONOS.salir} Cerrar Sesión`, value: 'cerrar_sesion' },
-        { name: `${ICONOS.error} Salir`, value: 'salir' }
+        { name: `Cerrar Sesión`, value: 'cerrar_sesion' },
+        { name: `Salir`, value: 'salir' }
     );
 
     return opcionesBase;
