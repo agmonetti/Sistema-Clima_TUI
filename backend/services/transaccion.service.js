@@ -256,10 +256,18 @@ export async function cargarDinero(usuarioId, monto) {
     return await TransaccionRepository.recargarSaldo(usuarioId, monto);
 }
 
-export async function obtenerDetalleSolicitud(solicitudId) {
+export async function obtenerDetalleSolicitud(solicitudId, usuarioSolicitante) {
     const solicitud = await TransaccionRepository.obtenerSolicitudPorId(solicitudId);
     
     if (!solicitud) return null;
+
+    if (usuarioSolicitante.rol !== 'admin' && usuarioSolicitante.rol !== 'tecnico') {
+        if (solicitud.usuario_id.toString() !== usuarioSolicitante.id.toString()) {
+            throw new Error('⛔ Acceso Denegado: Esta solicitud no te pertenece.');
+        }
+    }
+
+    
     try {
         if (solicitud.proceso_id) {
             const procesoMongo = await ProcesoRepository.obtenerProcesoPorId(solicitud.proceso_id);

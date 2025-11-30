@@ -605,7 +605,8 @@ async function pausar() {
 async function verDetalleSolicitud() {
     limpiarPantalla();
     console.log(TITULO(`\n ${ICONOS.cuenta}DETALLE DE SOLICITUD\n`));
-
+    console.log('Los ADMIN y TECNICOS tienen acceso a todas las solicitudes\n');
+    
     const { inputId } = await inquirer.prompt([
         {
             type: 'input',
@@ -631,8 +632,9 @@ async function verDetalleSolicitud() {
     const spinner = ora(`Buscando solicitud #${solicitudId}...`).start();
 
     try {
+        const usuarioActual = session.getUser();
         // 2. Buscar datos
-        const solicitud = await TransaccionService.obtenerDetalleSolicitud(solicitudId);
+        const solicitud = await TransaccionService.obtenerDetalleSolicitud(solicitudId, usuarioActual);
 
         if (!solicitud) {
             spinner.fail('Solicitud no encontrada');

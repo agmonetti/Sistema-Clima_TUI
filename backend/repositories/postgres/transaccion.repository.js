@@ -212,7 +212,8 @@ export async function obtenerSolicitudPorId(solicitudId) {
     const SQL = `
         SELECT 
             sp.solicitud_id, 
-            sp.proceso_id, 
+            sp.proceso_id,
+            sp.usuario_id, 
             sp."fechaSolicitud", 
             sp."isCompleted",
             h.resultado,
