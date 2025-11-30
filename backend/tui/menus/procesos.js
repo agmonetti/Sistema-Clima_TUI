@@ -382,6 +382,17 @@ async function obtenerParametrosProceso(codigo, sensores) {
                     message: 'Fecha fin (YYYY-MM-DD):',
                     default: new Date().toISOString().split('T')[0],
                     validate: validarFecha
+                },
+                {
+                    type: 'list',
+                    name: 'variable',
+                    message: 'Variable a analizar:',
+                    choices: [
+                        { name: 'Temperatura', value: 'temperatura' },
+                        { name: 'Humedad', value: 'humedad' },
+                        { name: 'Temperatura/Humedad', value: 'ambas'}
+                            ],
+                        loop: false
                 }
             ]);
             break;
@@ -431,6 +442,7 @@ async function obtenerParametrosProceso(codigo, sensores) {
                     choices: [
                         { name: 'Temperatura', value: 'temperatura' },
                         { name: 'Humedad', value: 'humedad' }
+
                     ]
                 },
                 {
@@ -499,11 +511,13 @@ function formatearResultado(data) {
         output += chalk.cyan.bold('PARÁMETROS UTILIZADOS:\n');
         output += chalk.cyan('─────────────────────────────────────\n');
         output += `   \nSensor: ${chalk.white(m.sensorNombre || m.sensorId)}\n`;
-        if (m.fechaInicio) output += `   Rango:  ${fInicio} al ${fFin}\n`;
-        if (m.umbral) output += `   Umbral: ${m.umbral}\n`;
-        if (m.origen) output += ` Fuente: ${m.origen}\n`; // Si usas caché
+        if (m.variable) output += `Variable: ${chalk.yellow(m.variable.toUpperCase())}\n`;
+        if (m.fechaInicio) output += `Rango:  ${fInicio} al ${fFin}\n`;
+        if (m.umbral) output += `Umbral: ${m.umbral}\n`;
+        if (m.origen) output += `Fuente: ${m.origen}\n`; // Si usas caché
         
-        output += chalk.cyan.bold('─────────────────────────────────────\n');
+        output += chalk.dim('─────────────────────────────────────\n');
+        output += chalk.cyan.bold('\nRESULTADOS:\n');
     }
 
     // 2. PREPARAR DATOS (Limpiar metadatos para no mostrarlos dos veces)
@@ -519,9 +533,10 @@ function formatearResultado(data) {
             delete datosPuros._esArrayOriginalmente;
         }
     }
-
+    
     // 3. MOSTRAR RESULTADO
     if (Array.isArray(datosPuros)) {
+        
         if (datosPuros.length === 0) return output + chalk.yellow('No se encontraron resultados.');
         // Si es una lista, mostramos resumen y tal vez una tabla pequeña
         return output + `Se encontraron ${chalk.bold(datosPuros.length)} registros.`;
@@ -548,7 +563,7 @@ function formatearResultado(data) {
         .filter(Boolean) // Quitar nulos
         .join('\n');
 
-    return output + chalk.cyan.bold('\nRESULTADOS:\n') + metricas;
+    return output  + metricas;
 }
 
 /**
@@ -604,7 +619,7 @@ async function pausar() {
 
 async function verDetalleSolicitud() {
     limpiarPantalla();
-    console.log(TITULO(`\n ${ICONOS.cuenta}DETALLE DE SOLICITUD\n`));
+    console.log(TITULO(`\n ${ICONOS.cuenta} DETALLE DEL PROCESO\n`));
     console.log('Los TECNICOS tienen acceso a todas las solicitudes\n');
     
     const { inputId } = await inquirer.prompt([
@@ -650,6 +665,7 @@ async function verDetalleSolicitud() {
         console.log(`${chalk.cyan.bold('DETALLES DE LA SOLICITUD:')}`);
         console.log(chalk.cyan('─────────────────────────────────────\n'));
         console.log(` ID Solicitud:  ${chalk.bold(solicitud.solicitud_id)}`);
+        console.log(` Cliente:       ${chalk.bold(solicitud.usuario_nombre)} - Mail: (${solicitud.usuario_mail})`);
         console.log(` Servicio:      ${chalk.bold(solicitud.nombre_proceso || 'N/A')}`); 
         console.log(` Fecha:         ${new Date(solicitud.fechaSolicitud).toLocaleString()}`);
         console.log(` Estado:        ${estadoColor}`);

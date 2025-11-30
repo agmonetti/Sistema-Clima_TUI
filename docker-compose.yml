@@ -6,11 +6,9 @@ services:
     build: 
       context: ./backend
     container_name: clima_app
-    # Mantenemos vivo el contenedor con tty
     tty: true
     stdin_open: true
-    # Comando "dummy" para que el contenedor no se apague
-    command: ["tail", "-f", "/dev/null"]
+    command: ["node","tui/index.js"]
     environment:
       PG_HOST: postgres
       PG_PORT: 5432
@@ -38,7 +36,7 @@ services:
     networks:
       - clima-network
 
-  # 2. PostgreSQL (Igual)
+  # 2. PostgreSQL 
   postgres:
     image: postgres:14-alpine
     container_name: clima_postgres
@@ -55,7 +53,7 @@ services:
     networks:
       - clima-network
 
-  # 3. MongoDB (Igual)
+  # 3. MongoDB 
   mongo:
     image: mongo:7-jammy
     container_name: clima_mongo
@@ -71,7 +69,7 @@ services:
     networks:
       - clima-network
 
-  # 4. Redis (Igual)
+  # 4. Redis
   redis:
     image: redis:alpine
     container_name: clima_redis

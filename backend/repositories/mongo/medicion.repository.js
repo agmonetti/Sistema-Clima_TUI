@@ -29,11 +29,34 @@ export async function obtenerEstadoSensor(sensorId) {
 }
 
 //2- obtener el reporte de un sensor en un rango de fechas
-export async function obtenerReporteRango(sensorId, fechaInicio, fechaFin) {
-    try {
+export async function obtenerReporteRango(sensorId, fechaInicio, fechaFin, variable ='temperatura') {
+   try {
+        // 1. Definimos qué campos vamos a calcular según la variable
+        let groupStage = {
+            _id: null,
+            cantMediciones: { $sum: 1 }
+        };
+
+        // Lógica para agregar campos al grupo dinámicamente
+        const agregarCampos = (tipo) => {
+            if (tipo === 'temperatura' || tipo === 'ambas') {
+                groupStage.tempPromedio = { $avg: "$temperatura" };
+                groupStage.tempMaxima = { $max: "$temperatura" };
+                groupStage.tempMinima = { $min: "$temperatura" };
+                groupStage.tempStdDev = { $stdDevPop: "$temperatura" };
+            }
+            if (tipo === 'humedad' || tipo === 'ambas') {
+                groupStage.humPromedio = { $avg: "$humedad" };
+                groupStage.humMaxima = { $max: "$humedad" };
+                groupStage.humMinima = { $min: "$humedad" };
+                groupStage.humStdDev = { $stdDevPop: "$humedad" };
+            }
+        };
+
+        agregarCampos(variable);
+
         const reporte = await Medicion.aggregate([
             {
-                // filtramos por sensor y por rango de fechas
                 $match: {
                     sensor_id: new mongoose.Types.ObjectId(String(sensorId)), 
                     timestamp: { 
@@ -43,14 +66,23 @@ export async function obtenerReporteRango(sensorId, fechaInicio, fechaFin) {
                 }
             },
             {
-                //  _id: null, agrupamos todo en un solo resultado
-                $group: {
-                    _id: null, 
-                    tempPromedio: { $avg: "$temperatura" },
-                    tempMaxima: { $max: "$temperatura" },   
-                    tempMinima: { $min: "$temperatura" },
-                    stdDev: { $stdDevPop: "$temperatura" }, // Desviación estándar poblacional   
-                    cantMediciones: { $sum: 1 }             
+                $group: groupStage 
+            },
+            // Proyecto final para redondear
+            {
+                $project: {
+                    _id: 0,
+                    cantMediciones: 1,
+                    // Usamos $ifNull para que no falle si pedimos solo una variable
+                    tempPromedio: { $round: [{ $ifNull: ["$tempPromedio", 0] }, 2] },
+                    tempMaxima: { $ifNull: ["$tempMaxima", null] }, 
+                    tempMinima: { $ifNull: ["$tempMinima", null] },
+                    tempStdDev: { $round: [{ $ifNull: ["$tempDesviacion", 0] }, 2] },
+                    
+                    humPromedio: { $round: [{ $ifNull: ["$humPromedio", 0] }, 2] },
+                    humMaxima: { $ifNull: ["$humMaxima", null] },
+                    humMinima: { $ifNull: ["$humMinima", null] },
+                    humStdDev: { $round: [{ $ifNull: ["$humDesviacion", 0] }, 2] }
                 }
             }
         ]);

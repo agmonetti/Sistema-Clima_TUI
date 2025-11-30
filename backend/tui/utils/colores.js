@@ -12,6 +12,7 @@ export const DESTACADO = chalk.magenta.bold;
 // Iconos
 export const ICONOS = {
     exito: '✓',
+    proceso: '📜',
     error: '✗',
     advertencia: '⚠',
     cuenta: '🔍',

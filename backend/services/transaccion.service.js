@@ -103,19 +103,29 @@ export async function aprobarEjecucion(solicitudId) {
                     if (!parametros?.sensorId || !parametros?.fechaInicio || !parametros?.fechaFin) {
                         throw new Error('Faltan parámetros: sensorId, fechaInicio, fechaFin');
                     }
+
                     const rawMaxMin = await MedicionRepository.obtenerReporteRango(
                         parametros.sensorId,
                         parametros.fechaInicio,
-                        parametros.fechaFin
+                        parametros.fechaFin,
+                        parametros.variable
                     );
                     
                     if (rawMaxMin) {
                         resultadoDelProceso = {
-                            tempMaxima: rawMaxMin.tempMaxima,
-                            tempMinima: rawMaxMin.tempMinima,
                             cantMediciones: rawMaxMin.cantMediciones
                         };
+                    
+                    if (parametros.variable === 'temperatura' || parametros.variable === 'ambas') {
+                            resultadoDelProceso.tempMaxima = rawMaxMin.tempMaxima + '°C';
+                            resultadoDelProceso.tempMinima = rawMaxMin.tempMinima + '°C';
+                        }
+                        if (parametros.variable === 'humedad' || parametros.variable === 'ambas') {
+                            resultadoDelProceso.humMaxima = rawMaxMin.humMaxima + '%';
+                            resultadoDelProceso.humMinima = rawMaxMin.humMinima + '%';
+                        }
                     }
+                
                     break;
 
                 case 'INFORME_PROMEDIOS':
@@ -125,14 +135,20 @@ export async function aprobarEjecucion(solicitudId) {
                     const rawProm = await MedicionRepository.obtenerReporteRango(
                         parametros.sensorId,
                         parametros.fechaInicio,
-                        parametros.fechaFin
+                        parametros.fechaFin,
+                        parametros.variable
                     );
 
                     if (rawProm) {
                         resultadoDelProceso = {
-                            tempPromedio: rawProm.tempPromedio,
                             cantMediciones: rawProm.cantMediciones
                         };
+                        if (parametros.variable === 'temperatura' || parametros.variable === 'ambas') {
+                            resultadoDelProceso.tempPromedio = rawProm.tempPromedio + '°C';
+                        }
+                        if (parametros.variable === 'humedad' || parametros.variable === 'ambas') {
+                            resultadoDelProceso.humPromedio = rawProm.humPromedio + '%';
+                        }
                     }
                     break;
 
@@ -143,14 +159,20 @@ export async function aprobarEjecucion(solicitudId) {
                     const rawDesv = await MedicionRepository.obtenerReporteRango(
                         parametros.sensorId,
                         parametros.fechaInicio,
-                        parametros.fechaFin
+                        parametros.fechaFin,
+                        parametros.variable
                     );
 
                     if (rawDesv) {
                         resultadoDelProceso = {
-                            stdDev: rawDesv.stdDev, // Solo devolvemos la desviación
                             cantMediciones: rawDesv.cantMediciones
                         };
+                        if (parametros.variable === 'temperatura' || parametros.variable === 'ambas') {
+                            resultadoDelProceso.desvEstandarTemp = rawDesv.tempStdDev;
+                        }
+                        if (parametros.variable === 'humedad' || parametros.variable === 'ambas') {
+                            resultadoDelProceso.desvEstandarHum = rawDesv.humStdDev;
+                        }
                     }
                     break;
 

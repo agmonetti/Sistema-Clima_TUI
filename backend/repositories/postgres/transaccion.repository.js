@@ -218,8 +218,11 @@ export async function obtenerSolicitudPorId(solicitudId) {
             sp."isCompleted",
             h.resultado,
             f.factura_id,
-            f."estadoFactura"
+            f."estadoFactura",
+            u.nombre as usuario_nombre,
+            u.mail as usuario_mail
         FROM "Solicitud_Proceso" sp
+        JOIN "Usuario" u ON sp.usuario_id = u.usuario_id
         LEFT JOIN "Historial_Ejecucion_Procesos" h ON sp.solicitud_id = h.solicitud_id
         LEFT JOIN "Facturas" f ON sp.solicitud_id = f.solicitud_id
         WHERE sp.solicitud_id = $1
