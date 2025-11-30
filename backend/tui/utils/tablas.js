@@ -1,13 +1,8 @@
-/**
- * Funciones de utilidad para crear tablas bonitas con cli-table3
- */
 import Table from 'cli-table3';
 import chalk from 'chalk';
 import { colorearEstado, colorearTemperatura, colorearRol, colorearSaldo, TITULO } from './colores.js';
+import { formatearFecha } from './helpers.js';
 
-/**
- * Crea una tabla de sensores formateada
- */
 export function crearTablaSensores(sensores) {
     const table = new Table({
         head: [TITULO('ID'), TITULO('Nombre'), TITULO('Ciudad'), TITULO('País'), TITULO('Tipo'), TITULO('Estado')],
@@ -28,9 +23,7 @@ export function crearTablaSensores(sensores) {
     return table.toString();
 }
 
-/**
- * Crea una tabla de mediciones formateada
- */
+
 export function crearTablaMediciones(mediciones) {
     const table = new Table({
         head: [TITULO('ID'), TITULO('Sensor'), TITULO('Temperatura'), TITULO('Humedad'), TITULO('Fecha')],
@@ -51,9 +44,7 @@ export function crearTablaMediciones(mediciones) {
     return table.toString();
 }
 
-/**
- * Crea una tabla de usuarios formateada
- */
+
 export function crearTablaUsuarios(usuarios) {
     const table = new Table({
         head: [TITULO('ID'), TITULO('Nombre'), TITULO('Email'), TITULO('Rol'), TITULO('Activo')],
@@ -73,9 +64,7 @@ export function crearTablaUsuarios(usuarios) {
     return table.toString();
 }
 
-/**
- * Crea una tabla de procesos disponibles
- */
+
 export function crearTablaProcesos(procesos) {
     const table = new Table({
         head: [TITULO('ID'), TITULO('Nombre'), TITULO('Código'), TITULO('Costo'), TITULO('Descripción')],
@@ -95,28 +84,6 @@ export function crearTablaProcesos(procesos) {
     return table.toString();
 }
 
-/**
- * Crea una tabla de historial de transacciones
- 
-export function crearTablaHistorial(historial) {
-    const table = new Table({
-        head: [TITULO('ID'), TITULO('Proceso'), TITULO('Costo'), TITULO('Estado'), TITULO('Fecha')],
-        colWidths: [8, 30, 10, 15, 22]
-    });
-
-    historial.forEach(item => {
-        table.push([
-            item.solicitud_id || 'N/A',
-            item.proceso_nombre || 'N/A',
-            colorearSaldo(item.costo),
-            colorearEstado(item.estado),
-            item.fecha_solicitud ? new Date(item.fecha_solicitud).toLocaleString() : 'N/A'
-        ]);
-    });
-
-    return table.toString();
-}
-*/
 export function crearTablaHistorial(historial) {
     const table = new Table({
         head: [chalk.cyan('ID'), chalk.cyan('Fecha'), chalk.cyan('Estado'), chalk.cyan('Factura')],
@@ -126,7 +93,7 @@ export function crearTablaHistorial(historial) {
     historial.forEach(h => {
         // Mapeo de datos de Postgres a la tabla
         // h.fechaSolicitud viene como objeto Date
-        const fecha = h.fechaSolicitud ? new Date(h.fechaSolicitud).toLocaleString() : 'N/A';
+        const fecha = formatearFecha(h.fechaSolicitud);
         const estado = h.isCompleted ? chalk.green('Completado') : chalk.yellow('Pendiente');
         const factura = h.factura_id ? `#${h.factura_id}` : 'N/A';
 
@@ -140,9 +107,7 @@ export function crearTablaHistorial(historial) {
 
     return table.toString();
 }
-/**
- * Crea una tabla de conversaciones/chats
- */
+
 export function crearTablaConversaciones(conversaciones) {
     const table = new Table({
         head: [TITULO('ID'), TITULO('Tipo'), TITULO('Nombre/Participantes'), TITULO('Miembros')],

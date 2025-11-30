@@ -72,17 +72,20 @@ export function mostrarSeparador() {
     console.log(chalk.dim('─'.repeat(60)));
 }
 
-/**
- * Formatea una fecha para mostrar
- */
 export function formatearFecha(fecha) {
     if (!fecha) return 'N/A';
-    return new Date(fecha).toLocaleString('es-AR', {
+    // Convertimos a objeto Date si es string
+    const d = new Date(fecha);
+    
+    // Forzamos la zona horaria de Buenos Aires
+    return d.toLocaleString('es-AR', {
+        timeZone: 'America/Argentina/Buenos_Aires',
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
+        second: '2-digit'
     });
 }
 

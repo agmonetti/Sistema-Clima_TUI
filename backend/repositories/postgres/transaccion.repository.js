@@ -114,7 +114,7 @@ export async function obtenerHistorialUsuario(usuarioId) {
         LEFT JOIN "Facturas" f ON sp.solicitud_id = f.solicitud_id
         LEFT JOIN "Historial_Ejecucion_Procesos" h ON sp.solicitud_id = h.solicitud_id
         WHERE sp.usuario_id = $1
-        ORDER BY sp."fechaSolicitud" DESC
+        ORDER BY sp."fechaSolicitud" ASC
     `;
     
     const result = await pool.query(SQL, [usuarioId]);
@@ -226,4 +226,37 @@ export async function obtenerSolicitudPorId(solicitudId) {
     
     const result = await pool.query(SQL, [solicitudId]);
     return result.rows[0];
+}
+
+export async function obtenerSolicitudesPendientes() {
+    const SQL = `
+        SELECT 
+            sp.solicitud_id, 
+            sp.fechaSolicitud, 
+            u.nombre as usuario_nombre,
+            u.mail as usuario_mail,
+            p.nombre as proceso_nombre,
+            p.costo,
+            sp.proceso_id
+        FROM "Solicitud_Proceso" sp
+        JOIN "Usuario" u ON sp.usuario_id = u.usuario_id
+        WHERE sp."isCompleted" = FALSE
+        ORDER BY sp."fechaSolicitud" ASC
+    `;
+    
+    const SQL_SIMPLE = `
+        SELECT 
+            sp.solicitud_id, 
+            sp."fechaSolicitud", 
+            u.nombre as usuario_nombre,
+            u.mail as usuario_mail,  -- <--- AGREGAR ESTA LÍNEA
+            sp.proceso_id as proceso_id_mongo
+        FROM "Solicitud_Proceso" sp
+        JOIN "Usuario" u ON sp.usuario_id = u.usuario_id
+        WHERE sp."isCompleted" = FALSE
+        ORDER BY sp."fechaSolicitud" ASC
+    `;
+
+    const result = await pool.query(SQL_SIMPLE);
+    return result.rows;
 }

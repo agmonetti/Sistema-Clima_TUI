@@ -172,7 +172,7 @@ async function solicitarProceso() {
         }
 
         // Ejecutar proceso
-        const spinnerEjec = ora('Ejecutando proceso...').start();
+const spinnerEjec = ora('Enviando solicitud...').start();
 
         const resultado = await TransaccionService.solicitarProceso({
             usuarioId: usuario.id,
@@ -180,22 +180,42 @@ async function solicitarProceso() {
             parametros: parametros
         });
 
-        spinnerEjec.succeed('Proceso ejecutado exitosamente');
+        // 1. Caso pendiente
+        if (resultado.status === 'pending') {
+            spinnerEjec.info('Solicitud creada correctamente'); 
+            
+            // Actualizar saldo en sesión (porque ya se cobró)
+            const nuevoSaldo = await TransaccionService.getSaldo(usuario.id);
+            session.actualizarSaldo(nuevoSaldo);
 
-        // Actualizar saldo en sesión
-        const nuevoSaldo = await TransaccionService.getSaldo(usuario.id);
-        session.actualizarSaldo(nuevoSaldo);
+            console.log('\n');
+            mostrarCaja(
+                chalk.yellow.bold('EN ESPERA DE APROBACIÓN\n\n') +
+                `Ticket: #${resultado.ticket.solicitud_id}\n` +
+                `Servicio: ${resultado.ticket.servicio}\n` +
+                `Costo: $${resultado.ticket.costo}\n\n` +
+                chalk.white('Tu solicitud fue enviada. Un tecnico la revisara pronto.\n') +
+                chalk.dim('Puedes ver el estado en "Ver mi historial".'),
+                { borderColor: 'yellow', padding: 1 }
+            );
+        } 
+        // 2. Caso inmediato por cache
+        else {
+            spinnerEjec.succeed('Proceso ejecutado exitosamente');
+            
+            const nuevoSaldo = await TransaccionService.getSaldo(usuario.id);
+            session.actualizarSaldo(nuevoSaldo);
 
-        // Mostrar resultado
-        console.log('\n');
-        mostrarCaja(
-            chalk.green.bold('✓ RESULTADO DEL PROCESO\n\n') +
-            `Ticket: #${resultado.ticket.solicitud_id}\n` +
-            `Servicio: ${resultado.ticket.servicio}\n` +
-            `Costo: $${resultado.ticket.costo}\n\n` +
-            formatearResultado(resultado.data),
-            { borderColor: 'green' }
-        );
+            console.log('\n');
+            mostrarCaja(
+                chalk.green.bold('✓ RESULTADO DEL PROCESO\n\n') +
+                `Ticket: #${resultado.ticket.solicitud_id}\n` +
+                `Servicio: ${resultado.ticket.servicio}\n` +
+                `Costo: $${resultado.ticket.costo}\n\n` +
+                formatearResultado(resultado.data),
+                { borderColor: 'green' }
+            );
+        }
 
         await pausar();
     } catch (error) {

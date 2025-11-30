@@ -10,6 +10,7 @@ import { menuMensajeria } from './mensajeria.js';
 import { menuUsuarios } from './usuarios.js';
 import { menuTransacciones } from './transacciones.js';
 import { mostrarEstadoSistema } from './pingBDs.js'; 
+import { menuGestionTecnica} from './gestionProcesos.js';
 
 export async function menuPrincipal() {
     const usuario = session.getUser();
@@ -81,7 +82,8 @@ function obtenerOpcionesPorRol(rol) {
             new inquirer.Separator('Opciones de Técnico '),
             { name: `${ICONOS.sensor} Sensores`, value: 'sensores' },
             { name: `${ICONOS.temperatura} Mediciones`, value: 'mediciones' },
-            {name: 'Estado sistema', value: 'estado_sistema'}
+            {name: 'Estado del Sistema', value: 'estado_sistema'},
+            {name: 'Procesos Pendientes', value: 'gestion_pendientes'}
         );
     }
 
@@ -122,5 +124,10 @@ async function ejecutarOpcion(opcion) {
         case 'estado_sistema':
             await mostrarEstadoSistema();
             break;
+        case 'gestion_pendientes':
+            await menuGestionTecnica();
+            break;
+            
     }
+
 }
