@@ -261,7 +261,7 @@ export async function obtenerDetalleSolicitud(solicitudId, usuarioSolicitante) {
     
     if (!solicitud) return null;
 
-    if (usuarioSolicitante.rol !== 'admin' && usuarioSolicitante.rol !== 'tecnico') {
+    if (usuarioSolicitante.rol !== 'tecnico') {
         if (solicitud.usuario_id.toString() !== usuarioSolicitante.id.toString()) {
             throw new Error('⛔ Acceso Denegado: Esta solicitud no te pertenece.');
         }

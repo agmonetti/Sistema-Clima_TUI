@@ -605,7 +605,7 @@ async function pausar() {
 async function verDetalleSolicitud() {
     limpiarPantalla();
     console.log(TITULO(`\n ${ICONOS.cuenta}DETALLE DE SOLICITUD\n`));
-    console.log('Los ADMIN y TECNICOS tienen acceso a todas las solicitudes\n');
+    console.log('Los TECNICOS tienen acceso a todas las solicitudes\n');
     
     const { inputId } = await inquirer.prompt([
         {
