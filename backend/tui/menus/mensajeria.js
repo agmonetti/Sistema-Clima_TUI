@@ -24,16 +24,18 @@ export async function menuMensajeria() {
                 type: 'list',
                 name: 'opcion',
                 message: 'Selecciona una opcion:',
+                loop: false,
+                pageSize: 14,
                 choices: [
-                    new inquirer.Separator(),
-                    { name: `← Volver al menu principal`, value: 'volver' },
                     new inquirer.Separator(),
                     { name: `- Ver mis conversaciones`, value: 'listar' },
                     { name: `- Iniciar chat privado`, value: 'privado' },
                     { name: `- Crear grupo`, value: 'grupo' },
                     { name: `- Ver mensajes de una conversacion`, value: 'ver' },
                     { name: `- Enviar mensaje`, value: 'enviar' },
-                    
+                    new inquirer.Separator(),
+                    { name: `← Volver al menu principal`, value: 'volver' },
+                    new inquirer.Separator()                    
                 ]
             }
         ]);
@@ -117,15 +119,16 @@ async function iniciarChatPrivado() {
                 type: 'list',
                 name: 'otroUsuarioId',
                 message: 'Selecciona un usuario:',
-                pageSize: 10,
+                pageSize: 14,
                 choices: [
-                    new inquirer.Separator(),
-                    {name:'Volver al menu anterior' , value:'volver'},
                     new inquirer.Separator(),
                     ...otrosUsuarios.map(u => ({
                     name: `${u.nombre} (${u.mail}) - ${u.rol}`,
                     value: u.usuario_id
                     })),
+                    new inquirer.Separator(),
+                    {name:'← Volver al menu anterior' , value:'volver'},
+                    new inquirer.Separator()
                 ]
             }
         ]);
@@ -169,7 +172,7 @@ async function crearGrupo() {
         
         spinner.succeed(`${otrosUsuarios.length} usuarios disponibles`);
             console.log('\n')
-    console.log((chalk.dim(`\n Como la idea es crear un grupo se debe:
+    console.log((chalk.dim(`Como la idea es crear un grupo se debe:
     - Seleccionar al menos 2 usuarios con "ESPACIO"
     - Luego presionar "ENTER" para continuar
     

@@ -53,14 +53,13 @@ export async function menuSensores() {
 function obtenerOpcionesSensores() {
 
     const opciones = [
-        new inquirer.Separator(),
-        { name: `← Volver al menu principal`, value: 'volver' },
-        new inquirer.Separator(),
         { name: `- Listar todos los sensores`, value: 'listar' },
         { name: `- Buscar sensor`, value: 'buscar' },
         { name: `- Crear nuevo sensor`, value: 'crear' },
         { name: `- Eliminar sensor`, value: 'eliminar' },
-       
+        new inquirer.Separator(),
+        { name: `← Volver al menu principal`, value: 'volver' },
+        new inquirer.Separator()
     ];
 
 

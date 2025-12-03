@@ -17,14 +17,13 @@ export async function menuGestionTecnica() {
                 name: 'criterio',
                 message: '¿Como queres ordenar la cola de procesos?',
                 choices: [
-                    new inquirer.Separator(),
-                    { name: '← Volver al menu principal', value: 'volver' },
-                    new inquirer.Separator(),
                     { name: '- MAYOR complejidad', value: 'complejidad_desc' },
                     { name: '- mas VIEJOS primero', value: 'antiguedad_asc' },
                     { name: '- mas NUEVOS primero', value: 'antiguedad_desc' },
                     { name: '- MENOR complejidad', value: 'complejidad_asc' },
-
+                    new inquirer.Separator(),
+                    { name: '← Volver al menu principal', value: 'volver' },
+                    new inquirer.Separator()
                 ]
             }
         ]);
@@ -51,9 +50,6 @@ export async function menuGestionTecnica() {
                     pageSize: 28,
                     loop: false,
                     choices: [
-                        new inquirer.Separator(),
-                        { name: '← Volver al menu principal', value: 'volver' },
-                        new inquirer.Separator(),
                         new inquirer.Separator('Cola de Procesos'),
                         new inquirer.Separator(),
                         ...pendientes.map(p => {
@@ -66,7 +62,10 @@ export async function menuGestionTecnica() {
                                 name: `${iconoComplejidad} [${p.complejidad}] Ticket #${p.solicitud_id} (${fechaCorta}) | ${p.nombre_proceso} | Cliente: ${p.usuario_nombre}`,
                                 value: p.solicitud_id
                             };
-                        })
+                        }),
+                        new inquirer.Separator(),
+                        { name: '← Volver al menu principal', value: 'volver' },
+                        new inquirer.Separator()
                     ]
                 }
             ]);

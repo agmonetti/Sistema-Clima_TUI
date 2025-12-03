@@ -23,12 +23,13 @@ export async function menuMediciones() {
                 name: 'opcion',
                 message: 'Selecciona una opción:',
                 choices: [
-                     new inquirer.Separator(),
-                    { name: `← Volver al menu principal`, value: 'volver' },
                     new inquirer.Separator(),
                     { name: `- Ver últimas mediciones de un sensor`, value: 'ultimas' },
                     { name: `- Ver reporte de rango de fechas`, value: 'reporte' },
                     { name: `- Buscar alertas`, value: 'alertas' },
+                    new inquirer.Separator(),
+                    { name: `← Volver al menu principal`, value: 'volver' },
+                    new inquirer.Separator()
                    ]
             }
         ]);
@@ -77,17 +78,16 @@ async function verUltimasMediciones() {
                 name: 'sensorId',
                 message: 'Selecciona un sensor:',
                 loop: false, 
-                pageSize: 12, // opciones por pagina
+                pageSize: 12,
                 choices:
                     [
-                    new inquirer.Separator(),
-                    {name:'Volver al menu anterior' , value:'volver'},
-                    new inquirer.Separator(),
                 ...sensores.map((s, index) => ({ 
                     name: `${index + 1}. ${s.nombre} - ${s.ubicacion?.ciudad || 'N/A'}`,
                     value: s._id.toString()
                     })),
-
+                    new inquirer.Separator(),
+                    {name:'Volver al menu anterior' , value:'volver'},
+                    new inquirer.Separator()
                 ]
             }
         ]);
@@ -154,13 +154,13 @@ async function verReporteRango() {
                 loop: false,
                 pageSize: 12,
                 choices: [
-                    new inquirer.Separator(),
-                    { name: 'Volver al menu anterior', value: 'volver' },
-                    new inquirer.Separator(),
                     ...sensores.map((s, index) => ({
                         name: `${index + 1}. ${s.nombre} - ${s.ubicacion?.ciudad || 'N/A'}`,
                         value: s._id.toString()
-                    }))
+                    })),
+                    new inquirer.Separator(),
+                    { name: 'Volver al menu anterior', value: 'volver' },
+                    new inquirer.Separator()
                 ]
             }
         ]);
@@ -240,13 +240,13 @@ async function buscarAlertas() {
                 loop: false,
                 pageSize: 12,
                 choices: [
-                    new inquirer.Separator(),
-                    { name: 'Volver al menu anterior', value: 'volver' },
-                    new inquirer.Separator(),
                     ...sensores.map((s, index) => ({
                         name: `${index + 1}. ${s.nombre} - ${s.ubicacion?.ciudad || 'N/A'}`,
                         value: s._id.toString()
-                    }))
+                    })),
+                    new inquirer.Separator(),
+                    { name: 'Volver al menu anterior', value: 'volver' },
+                    new inquirer.Separator()
                 ]
             }
         ]);

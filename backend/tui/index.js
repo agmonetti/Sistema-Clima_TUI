@@ -44,11 +44,8 @@ function mostrarBanner() {
     );
 }
 
-/**
- * Conecta a todas las bases de datos con spinners de progreso
- */
 async function conectarBaseDatos() {
-    console.log(chalk.dim('\n📦 Conectando a servicios...\n'));
+    console.log(chalk.dim('\nConectando a servicios...\n'));
     
     // MongoDB
     const spinnerMongo = ora('Conectando a MongoDB...').start();
@@ -83,9 +80,7 @@ async function conectarBaseDatos() {
     console.log(chalk.green('\n✓ Todos los servicios conectados correctamente\n'));
 }
 
-/**
- * Loop principal de la aplicación
- */
+
 async function main() {
     try {
         // Mostrar banner
@@ -96,7 +91,7 @@ async function main() {
         
         // Loop principal
         while (true) {
-            // Si no hay sesión, mostrar pantalla de auth
+            // Si no hay sesion, mostrar pantalla de auth
             if (!session.estaLogueado()) {
                 const loginExitoso = await pantallaAuth();
                 

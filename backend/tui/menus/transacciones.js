@@ -30,11 +30,10 @@ export async function menuTransacciones() {
                 name: 'opcion',
                 message: 'Selecciona una opción:',
                 choices: [
-                     new inquirer.Separator(),
-                    { name: `← Volver al menu principal`, value: 'volver' },
-                    new inquirer.Separator(),
                     { name: `- Cargar dinero`, value: 'cargar' },
-                   
+                    new inquirer.Separator(),
+                    { name: `← Volver al menu principal`, value: 'volver' },
+                    new inquirer.Separator()
                 ]
             }
         ]);

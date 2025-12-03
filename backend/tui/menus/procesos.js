@@ -26,15 +26,16 @@ export async function menuProcesos() {
                 type: 'list',
                 name: 'opcion',
                 message: 'Selecciona una opción:',
+                pageSize: 14,
                 choices: [
-                     new inquirer.Separator(),
-                    { name: `← Volver al menu principal`, value: 'volver' },
                     new inquirer.Separator(),
                     { name: `- Ver catálogo de procesos`, value: 'catalogo' },
                     { name: `- Solicitar proceso`, value: 'solicitar' },
                     { name: `- Ver mi historial`, value: 'historial' },
                     { name: `- Ver detalle de solicitud`, value: 'detalle' },
-                   
+                    new inquirer.Separator(),
+                    { name: `← Volver al menu principal`, value: 'volver' },
+                    new inquirer.Separator()                  
                 ]
             }
         ]);
@@ -120,16 +121,17 @@ async function solicitarProceso() {
                 type: 'list',
                 name: 'procesoId',
                 message: 'Selecciona el proceso a ejecutar:',
-                pageSize: 10,
+                pageSize: 14,
                 loop: false,
                 choices:[
-                    new inquirer.Separator(),
-                    {name:'← Volver al menu anterior' , value:'volver'},
                     new inquirer.Separator(),
                     ...procesos.map((p, index) => ({
                         name: `${index + 1}. ${p.nombre} - $${p.costo} - ${p.descripcion || ''}`,
                         value: p._id.toString()
                     })),
+                    new inquirer.Separator(),
+                    {name:'← Volver al menu anterior' , value:'volver'},
+                    new inquirer.Separator()                    
                 ]
             }
         ]);
@@ -242,12 +244,13 @@ async function obtenerParametrosProceso(codigo, sensores) {
                 name: 'ciudad',
                 message: 'Seleccionar la Ciudad:',
                 loop: false,
-                pageSize: 10,
+                pageSize: 14,
                 choices: [
                     new inquirer.Separator(),
-                    { name: 'Volver al menu anterior', value: 'volver' },
-                     new inquirer.Separator(),
-                     ...ciudades
+                     ...ciudades,
+                    new inquirer.Separator(),
+                    { name: '← Volver al menu anterior', value: 'volver' },
+                    new inquirer.Separator()
                     ]
             }
         ]);
@@ -291,9 +294,6 @@ async function obtenerParametrosProceso(codigo, sensores) {
                         pageSize: 20,
                         choices: [
                             new inquirer.Separator(),
-                            {name: 'Volver al menu anterior', value: 'volver'},
-                            new inquirer.Separator(),
-
                             { name: 'Enero', value: 1 }, 
                             { name: 'Febrero', value: 2 },
                             { name: 'Marzo', value: 3 },
@@ -305,7 +305,11 @@ async function obtenerParametrosProceso(codigo, sensores) {
                             { name: 'Septiembre', value: 9 },
                             { name: 'Octubre', value: 10 },
                             { name: 'Noviembre', value: 11 },
-                            { name: 'Diciembre', value: 12 }
+                            { name: 'Diciembre', value: 12 },
+                            new inquirer.Separator(),
+                            {name: 'Volver al menu anterior', value: 'volver'},
+                            new inquirer.Separator()
+
                         ]
                     }
                 ]);
@@ -367,9 +371,16 @@ async function obtenerParametrosProceso(codigo, sensores) {
                     name: 'sensorId',
                     message: 'Selecciona un sensor:',
                     loop: false,
-                    choices: sensorChoices,
-                    pageSize: 12
+                    choices: 
+                    [
+                    new inquirer.Separator(),
+                    ...sensorChoices,
+                    ],
+                    pageSize: 22
+                    
                 },
+               
+
                 {
                     type: 'input',
                     name: 'fechaInicio',
@@ -389,6 +400,7 @@ async function obtenerParametrosProceso(codigo, sensores) {
                     name: 'variable',
                     message: 'Variable a analizar:',
                     choices: [
+                        new inquirer.Separator(),
                         { name: 'Temperatura', value: 'temperatura' },
                         { name: 'Humedad', value: 'humedad' },
                         { name: 'Temperatura/Humedad', value: 'ambas'}
@@ -396,6 +408,7 @@ async function obtenerParametrosProceso(codigo, sensores) {
                         loop: false
                 }
             ]);
+            
             break;
 
         case 'CONSULTAR_DATOS':
@@ -406,10 +419,14 @@ async function obtenerParametrosProceso(codigo, sensores) {
                     name: 'sensorId',
                     message: 'Selecciona un sensor:',
                     loop: false,
-                    choices: sensorChoices,
-                    pageSize: 12
+                    choices: [
+                        new inquirer.Separator(),
+                        ...sensorChoices,
+                    ],
+                    pageSize: 22
                 }
             ]);
+            if (respuestas.sensorId === 'volver') return null;
             break;
 
         case 'BUSCAR_ALERTAS':
@@ -419,8 +436,12 @@ async function obtenerParametrosProceso(codigo, sensores) {
                     name: 'sensorId',
                     message: 'Selecciona un sensor:',
                     loop: false,
-                    choices: sensorChoices,
-                    pageSize: 12
+                    choices: [
+                        new inquirer.Separator(),
+                        ...sensorChoices,
+
+                    ],
+                    pageSize: 22
                 },
                 {
                     type: 'input',
@@ -441,6 +462,7 @@ async function obtenerParametrosProceso(codigo, sensores) {
                     name: 'variable',
                     message: 'Variable:',
                     choices: [
+                        new inquirer.Separator(),
                         { name: 'Temperatura', value: 'temperatura' },
                         { name: 'Humedad', value: 'humedad' }
 
@@ -451,6 +473,7 @@ async function obtenerParametrosProceso(codigo, sensores) {
                     name: 'operador',
                     message: 'Condición:',
                     choices: [
+                        new inquirer.Separator(),
                         { name: 'Mayor que', value: 'mayor' },
                         { name: 'Menor que', value: 'menor' }
                     ]
@@ -466,7 +489,7 @@ async function obtenerParametrosProceso(codigo, sensores) {
                 console.log(chalk.red('\nSolicitud cancelada.¡Debe ser un valor numerico!\n'));
                 return null; 
             }
-            
+           
             break;
 
         default:
@@ -476,16 +499,20 @@ async function obtenerParametrosProceso(codigo, sensores) {
                     name: 'sensorId',
                     message: 'Selecciona un sensor:',
                     loop: false,
-                    choices: sensorChoices,
-                    pageSize: 12
+                    choices: [
+                        new inquirer.Separator(),
+                        ...sensorChoices,
+                    ],
+                    pageSize: 22
                 }
             ]);
+            
     }
 
    if (respuestas.sensorId) {
         const sensorSeleccionado = sensores.find(s => s._id.toString() === respuestas.sensorId);
         if (sensorSeleccionado) {
-            respuestas.sensorNombre = sensorSeleccionado.nombre; // Inyectamos el nombre
+            respuestas.sensorNombre = sensorSeleccionado.nombre; // el nombre
         }
     }
 

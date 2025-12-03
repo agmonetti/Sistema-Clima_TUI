@@ -37,7 +37,9 @@ export async function menuUsuarios() {
                     { name: `- Desactivar usuario`, value: 'desactivar' },
                     { name: `- Reactivar usuario`, value: 'reactivar' },
                     new inquirer.Separator(),
-                    { name: `← Volver al menu principal`, value: 'volver' }
+                    { name: `← Volver al menu principal`, value: 'volver' },
+                    new inquirer.Separator()
+
                 ]
             }
         ]);
@@ -118,7 +120,7 @@ async function buscarUsuario() {
             spinner.succeed('Usuario encontrado');
             console.log('\n');
             console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
-            console.log(chalk.bold('  📋 INFORMACIÓN DEL USUARIO'));
+            console.log(chalk.bold('  📋 INFORMACION DEL USUARIO'));
             console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
             console.log(`  ID:      ${usuario.usuario_id}`);
             console.log(`  Nombre:  ${usuario.nombre}`);

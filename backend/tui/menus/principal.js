@@ -44,7 +44,7 @@ export async function menuPrincipal() {
 
         if (opcion === 'cerrar_sesion') {
             session.logout();
-            return; // Vuelve al loop principal que mostrará la pantalla de auth
+            return; 
         }
 
 
