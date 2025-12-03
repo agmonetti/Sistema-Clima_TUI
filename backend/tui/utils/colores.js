@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 
-// Colores para estados
+// Colores para estados e iconos para el sistema
 export const EXITO = chalk.green;
 export const ERROR = chalk.red;
 export const INFO = chalk.blue;
@@ -9,7 +9,6 @@ export const TITULO = chalk.blue.bold;
 export const SUBTITULO = chalk.cyan;
 export const DESTACADO = chalk.magenta.bold;
 
-// Iconos
 export const ICONOS = {
     exito: '✓',
     proceso: '📜',
@@ -26,7 +25,6 @@ export const ICONOS = {
     mensaje: '✉️'
 };
 
-// Funciones de ayuda para colorear según estado
 export function colorearEstado(estado) {
     switch (estado?.toLowerCase()) {
         case 'activo':

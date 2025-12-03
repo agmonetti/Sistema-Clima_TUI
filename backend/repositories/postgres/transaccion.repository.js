@@ -1,12 +1,12 @@
 import pool from '../../config/postgres.js';
 
-// 1 -  proceso de crear solicutd
+// 1 -  proceso de crear solicutd de proceso con factura y actualizar saldo
 
 export async function crearSolicitudConFactura({ usuarioId, procesoIdMongo, costo }) {
     const client = await pool.connect();
 
     try {
-        await client.query('BEGIN'); // 🛑 INICIO TRANSACCIÓN
+        await client.query('BEGIN'); // INICIO TRANSACCIÓN
 
         // verificamos quetiene saldo y es suficiente
         const saldoQuery = `

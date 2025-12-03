@@ -1,21 +1,14 @@
-/**
- * Funciones auxiliares para la TUI
- */
 import chalk from 'chalk';
 import boxen from 'boxen';
 import clear from 'clear';
 import { ICONOS, ERROR, EXITO, INFO, ADVERTENCIA } from './colores.js';
 
-/**
- * Limpia la pantalla
- */
+//funciones auxiliares para la interfaz de usuario
 export function limpiarPantalla() {
     clear();
 }
 
-/**
- * Muestra un mensaje en una caja decorativa
- */
+
 export function mostrarCaja(mensaje, opciones = {}) {
     const defaultOpciones = {
         padding: 1,
@@ -26,37 +19,22 @@ export function mostrarCaja(mensaje, opciones = {}) {
     console.log(boxen(mensaje, { ...defaultOpciones, ...opciones }));
 }
 
-/**
- * Muestra un mensaje de éxito
- */
 export function mostrarExito(mensaje) {
     console.log(EXITO(`${ICONOS.exito} ${mensaje}`));
 }
 
-/**
- * Muestra un mensaje de error
- */
 export function mostrarError(mensaje) {
     console.log(ERROR(`${mensaje}`));
 }
 
-/**
- * Muestra un mensaje informativo
- */
 export function mostrarInfo(mensaje) {
     console.log(INFO(`${ICONOS.info} ${mensaje}`));
 }
 
-/**
- * Muestra una advertencia
- */
 export function mostrarAdvertencia(mensaje) {
     console.log(ADVERTENCIA(`${ICONOS.advertencia} ${mensaje}`));
 }
 
-/**
- * Pausa la ejecución hasta que el usuario presione Enter
- */
 export async function pausar(inquirer) {
     await inquirer.prompt([{
         type: 'input',
@@ -65,9 +43,6 @@ export async function pausar(inquirer) {
     }]);
 }
 
-/**
- * Muestra un separador visual
- */
 export function mostrarSeparador() {
     console.log(chalk.dim('─'.repeat(60)));
 }
@@ -89,26 +64,19 @@ export function formatearFecha(fecha) {
     });
 }
 
-/**
- * Valida un email
- */
 export function validarEmail(email) {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(email);
 }
 
-/**
- * Trunca un texto a una longitud máxima
- */
+
 export function truncarTexto(texto, maxLength = 30) {
     if (!texto) return '';
     if (texto.length <= maxLength) return texto;
     return texto.substring(0, maxLength - 3) + '...';
 }
 
-/**
- * Muestra información del usuario logueado
- */
+
 export function mostrarInfoUsuario(usuario) {
     if (!usuario) return;
     
