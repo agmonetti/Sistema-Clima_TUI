@@ -57,7 +57,7 @@ export function crearTablaUsuarios(usuarios) {
             usuario.nombre || 'N/A',
             usuario.mail || 'N/A',
             colorearRol(usuario.rol),
-            usuario.isActive ? '✓' : '✗'
+            usuario.isActive ? 'SI' : 'NO'
         ]);
     });
 

@@ -168,7 +168,7 @@ export async function listarSensores(ciudad) {
         if (ciudad) {
             filtro['ubicacion.ciudad'] = ciudad;
         }
-        const limite = ciudad ? 100 : 20;
+        const limite = 100;
 
        return await Sensor.find(filtro, 'nombre ubicacion configuracion.tipo_sensor _id')
             .limit(limite)

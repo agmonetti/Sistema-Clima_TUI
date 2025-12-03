@@ -1,4 +1,3 @@
-// CAMBIO CLAVE: Importamos todo el módulo con un alias
 import * as MensajeriaRepository from '../repositories/mongo/mensajeria.repository.js';
 import * as UsuarioService from './usuario.service.js';
 

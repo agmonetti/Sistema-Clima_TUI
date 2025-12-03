@@ -26,7 +26,6 @@ export async function menuMediciones() {
                     new inquirer.Separator(),
                     { name: `- Ver últimas mediciones de un sensor`, value: 'ultimas' },
                     { name: `- Ver reporte de rango de fechas`, value: 'reporte' },
-                    { name: `- Buscar alertas`, value: 'alertas' },
                     new inquirer.Separator(),
                     { name: `← Volver al menu principal`, value: 'volver' },
                     new inquirer.Separator()
@@ -42,9 +41,6 @@ export async function menuMediciones() {
                 break;
             case 'reporte':
                 await verReporteRango();
-                break;
-            case 'alertas':
-                await buscarAlertas();
                 break;
         }
     }

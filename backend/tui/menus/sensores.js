@@ -17,7 +17,7 @@ import { ICONOS, TITULO } from '../utils/colores.js';
 export async function menuSensores() {
     while (true) {
         limpiarPantalla();
-        console.log(TITULO(`\n 🕹️ GESTIÓN DE SENSORES\n`));
+        console.log(TITULO(`\n 🕹️  GESTION DE SENSORES\n`));
 
         const opciones = obtenerOpcionesSensores();
 
@@ -26,7 +26,10 @@ export async function menuSensores() {
                 type: 'list',
                 name: 'opcion',
                 message: 'Selecciona una opción:',
-                choices: opciones
+                choices: [
+                new inquirer.Separator(),
+                ...opciones
+                ]
             }
         ]);
 
@@ -111,9 +114,9 @@ async function crearSensor() {
             name: 'tipo_sensor',
             message: 'Tipo de sensor:',
             choices: [
-                { name: '🌡️    Temperatura', value: 'temperatura' },
-                { name: '💧    Humedad', value: 'humedad' },
-                { name: '🌡️💧  Temperatura/Humedad', value: 'temperatura/humedad' }
+                { name: '- Temperatura', value: 'temperatura' },
+                { name: '- Humedad', value: 'humedad' },
+                { name: '- Temperatura/Humedad', value: 'temperatura/humedad' }
             ]
         },
         {

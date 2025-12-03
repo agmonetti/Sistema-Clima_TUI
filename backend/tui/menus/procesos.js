@@ -376,7 +376,7 @@ async function obtenerParametrosProceso(codigo, sensores) {
                     new inquirer.Separator(),
                     ...sensorChoices,
                     ],
-                    pageSize: 22
+                    pageSize: 20
                     
                 },
                
@@ -423,7 +423,7 @@ async function obtenerParametrosProceso(codigo, sensores) {
                         new inquirer.Separator(),
                         ...sensorChoices,
                     ],
-                    pageSize: 22
+                    pageSize: 20
                 }
             ]);
             if (respuestas.sensorId === 'volver') return null;
@@ -441,7 +441,7 @@ async function obtenerParametrosProceso(codigo, sensores) {
                         ...sensorChoices,
 
                     ],
-                    pageSize: 22
+                    pageSize: 20
                 },
                 {
                     type: 'input',
@@ -503,7 +503,7 @@ async function obtenerParametrosProceso(codigo, sensores) {
                         new inquirer.Separator(),
                         ...sensorChoices,
                     ],
-                    pageSize: 22
+                    pageSize: 20
                 }
             ]);
             
