@@ -520,19 +520,16 @@ async function obtenerParametrosProceso(codigo, sensores) {
 }
 
 
-/**
- * Formatea el resultado del proceso para mostrar (con Metadatos)
- */
 function formatearResultado(data) {
     if (!data) return 'Sin datos';
     
     let output = '';
 
-    // 1. MOSTRAR METADATOS (Contexto de la solicitud)
+    // 1datos de la solicitud
     if (data._metadatos) {
         const m = data._metadatos;
         
-        // Formatear fechas si existen
+        // fechas si existen
         const fInicio = m.fechaInicio ? new Date(m.fechaInicio).toLocaleDateString() : '-';
         const fFin = m.fechaFin ? new Date(m.fechaFin).toLocaleDateString() : '-';
 
@@ -548,29 +545,28 @@ function formatearResultado(data) {
         output += chalk.cyan.bold('\nRESULTADOS:\n');
     }
 
-    // 2. PREPARAR DATOS (Limpiar metadatos para no mostrarlos dos veces)
+    // limpieza de los metadatos
     let datosPuros = data;
     // Si tiene metadatos o es un array envuelto, extraemos lo real
     if (data._metadatos || data._esArrayOriginalmente) {
         if (data._esArrayOriginalmente) {
             datosPuros = data.datos; // Es una lista (ej: Alertas)
         } else {
-            // Es un objeto (ej: Promedios), hacemos copia y borramos claves internas
             datosPuros = { ...data };
             delete datosPuros._metadatos;
             delete datosPuros._esArrayOriginalmente;
         }
     }
     
-    // 3. MOSTRAR RESULTADO
+    // resultado
     if (Array.isArray(datosPuros)) {
         
         if (datosPuros.length === 0) return output + chalk.yellow('No se encontraron resultados.');
-        // Si es una lista, mostramos resumen y tal vez una tabla pequeña
+        // Si es una lista, mostramos resumen 
         return output + `Se encontraron ${chalk.bold(datosPuros.length)} registros.`;
     }
     
-    // Si es objeto (clave-valor)
+    // Si es objeto
     const metricas = Object.entries(datosPuros)
         .map(([key, value]) => {
             if (key === '_id') return null; // Ignorar ID de mongo null
@@ -594,9 +590,7 @@ function formatearResultado(data) {
     return output  + metricas;
 }
 
-/**
- * Ver historial de procesos del usuario
- */
+
 async function verHistorial() {
     limpiarPantalla();
     console.log(TITULO(`\n${ICONOS.info} MI HISTORIAL DE PROCESOS\n`));
@@ -622,9 +616,7 @@ async function verHistorial() {
     }
 }
 
-/**
- * Valida formato de fecha
- */
+
 function validarFecha(input) {
     const regex = /^\d{4}-\d{2}-\d{2}$/;
     if (!regex.test(input)) return 'Formato inválido. Usa YYYY-MM-DD';
@@ -633,9 +625,7 @@ function validarFecha(input) {
     return true;
 }
 
-/**
- * Función auxiliar para pausar
- */
+
 async function pausar() {
     await inquirer.prompt([{
         type: 'input',
@@ -666,17 +656,14 @@ async function verDetalleSolicitud() {
         }
     ]);
 
-    // CAMBIO 2: Lógica de salida
     if (inputId === '0') return;
 
-    // Convertimos a número ahora que estamos seguros que es válido
     const solicitudId = parseInt(inputId);
 
     const spinner = ora(`Buscando solicitud #${solicitudId}...`).start();
 
     try {
         const usuarioActual = session.getUser();
-        // 2. Buscar datos
         const solicitud = await TransaccionService.obtenerDetalleSolicitud(solicitudId, usuarioActual);
 
         if (!solicitud) {
@@ -688,7 +675,6 @@ async function verDetalleSolicitud() {
         spinner.succeed('Solicitud encontrada');
         console.log('\n');
 
-        // 3. Mostrar cabecera
         const estadoColor = solicitud.isCompleted ? chalk.green('COMPLETADO') : chalk.yellow('PENDIENTE');
         console.log(`${chalk.cyan.bold('DETALLES DE LA SOLICITUD:')}`);
         console.log(chalk.cyan('─────────────────────────────────────\n'));

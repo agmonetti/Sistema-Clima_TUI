@@ -8,7 +8,7 @@ import { ICONOS, TITULO } from '../utils/colores.js';
 export async function menuGestionTecnica() {
     while (true) {
         limpiarPantalla();
-        console.log(TITULO(`\n 🏷️  GESTIÓN DE SOLICITUDES PENDIENTES\n`));
+        console.log(TITULO(`\n 🏷️  GESTION DE SOLICITUDES PENDIENTES\n`));
 
         
         const { criterio } = await inquirer.prompt([
@@ -55,9 +55,9 @@ export async function menuGestionTecnica() {
                         new inquirer.Separator(),
                         ...pendientes.map(p => {
                             let iconoComplejidad = '⚪';
-                            if (p.complejidad === 'BAJA') iconoComplejidad = '🟢'; // Rápido
-                            if (p.complejidad === 'MEDIA') iconoComplejidad = '🟡'; // Normal
-                            if (p.complejidad === 'ALTA') iconoComplejidad = '🔴'; // Lento/Pesado    
+                            if (p.complejidad === 'BAJA') iconoComplejidad = '🟢'; 
+                            if (p.complejidad === 'MEDIA') iconoComplejidad = '🟡'; 
+                            if (p.complejidad === 'ALTA') iconoComplejidad = '🔴'; 
                             const fechaCorta = new Date(p.fechaSolicitud).toLocaleTimeString('es-AR', { hour: '2-digit', minute:'2-digit',timeZone:'America/Argentina/Buenos_Aires' });
                             return {
                                 name: `${iconoComplejidad} [${p.complejidad}] Ticket #${p.solicitud_id} (${fechaCorta}) | ${p.nombre_proceso} | Cliente: ${p.usuario_nombre}`,
@@ -73,7 +73,7 @@ export async function menuGestionTecnica() {
 
             if (solicitudId === 'volver') return;
 
-            // Confirmar ejecución
+            // corfirmacion de ejecucion de la solicitud
             const seleccionado = pendientes.find(p => p.solicitud_id === solicitudId);
             console.log(chalk.yellow(`\nVas a ejecutar el proceso: ${seleccionado.nombre_proceso}`));
             console.log(chalk.dim(`Cliente: ${seleccionado.usuario_nombre} - Email: (${seleccionado.usuario_mail})`));

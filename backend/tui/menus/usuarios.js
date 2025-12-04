@@ -1,6 +1,3 @@
-/**
- * Menú de gestión de usuarios (solo admin)
- */
 import inquirer from 'inquirer';
 import chalk from 'chalk';
 import ora from 'ora';
@@ -11,11 +8,9 @@ import { limpiarPantalla, mostrarExito, mostrarError, mostrarInfo, mostrarAdvert
 import { crearTablaUsuarios } from '../utils/tablas.js';
 import { ICONOS, TITULO, colorearRol } from '../utils/colores.js';
 
-/**
- * Menú principal de gestión de usuarios
- */
+
 export async function menuUsuarios() {
-    // Verificar que es admin
+ 
     if (!session.hasRole('admin')) {
         mostrarError('No tienes permisos para acceder a esta sección');
         await pausar();
@@ -63,10 +58,7 @@ export async function menuUsuarios() {
     }
 }
 
-/**
- * Lista todos los usuarios
- */
-async function listarUsuarios() {
+ async function listarUsuarios() {
     limpiarPantalla();
     console.log(TITULO(`\n${ICONOS.menu} LISTA DE USUARIOS\n`));
 
@@ -90,9 +82,7 @@ async function listarUsuarios() {
     }
 }
 
-/**
- * Busca un usuario por ID
- */
+
 async function buscarUsuario() {
     limpiarPantalla();
     console.log(TITULO(`\n${ICONOS.info} BUSCAR USUARIO\n`));
@@ -138,14 +128,11 @@ async function buscarUsuario() {
     }
 }
 
-/**
- * Desactiva un usuario
- */
+
 async function desactivarUsuario() {
     limpiarPantalla();
     console.log(TITULO(`\n${ICONOS.advertencia} DESACTIVAR USUARIO\n`));
 
-    // Mostrar lista de usuarios activos
     const spinner = ora('Cargando usuarios activos...').start();
 
     try {
@@ -203,9 +190,7 @@ async function desactivarUsuario() {
     }
 }
 
-/**
- * Reactiva un usuario desactivado
- */
+
 async function reactivarUsuario() {
     limpiarPantalla();
     console.log(TITULO(`\n${ICONOS.exito} REACTIVAR USUARIO\n`));
@@ -263,9 +248,7 @@ async function reactivarUsuario() {
     }
 }
 
-/**
- * Función auxiliar para pausar
- */
+
 async function pausar() {
     await inquirer.prompt([{
         type: 'input',

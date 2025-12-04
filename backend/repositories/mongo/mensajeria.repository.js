@@ -1,7 +1,6 @@
 import Conversacion from '../../models/mongo/Conversacion.js';
 import Mensaje from '../../models/mongo/Mensaje.js';
 
-// Crear grupo
 export async function crearConversacion(miembros, nombre = null, esGrupal = false) {
     const nueva = new Conversacion({ miembros, nombre, esGrupal });
     return await nueva.save();

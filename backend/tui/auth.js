@@ -41,21 +41,19 @@ export async function pantallaAuth() {
     }
 }
 
-/**
- * Proceso de login
- */
+
 async function login() {
     limpiarPantalla();
-    console.log(TITULO(`\n${ICONOS.usuario} INICIAR SESIÓN\n`));
+    console.log(TITULO(`\n${ICONOS.usuario} INICIAR SESION\n`));
 
     const credenciales = await inquirer.prompt([
         {
             type: 'input',
             name: 'email',
-            message: 'Email:',
+            message: 'Mail:',
             validate: (input) => {
-                if (!input) return 'El email es requerido';
-                if (!validarEmail(input)) return 'Por favor ingresa un email válido';
+                if (!input) return 'El mail es necesario';
+                if (!validarEmail(input)) return 'Por favor ingresa un mail valido';
                 return true;
             }
         },
@@ -64,7 +62,7 @@ async function login() {
             name: 'password',
             message: 'Contraseña:',
             mask: '*',
-            validate: (input) => input ? true : 'La contraseña es requerida'
+            validate: (input) => input ? true : 'La contraseña es necesaria'
         }
     ]);
 
@@ -111,9 +109,7 @@ async function login() {
     }
 }
 
-/**
- * Proceso de registro
- */
+
 async function registro() {
     limpiarPantalla();
     console.log(TITULO(`\n${ICONOS.exito} REGISTRO DE USUARIO\n`));
@@ -124,7 +120,7 @@ async function registro() {
             name: 'nombre',
             message: 'Nombre completo:',
             validate: (input) => {
-                if (!input) return 'El nombre es requerido';
+                if (!input) return 'El nombre es necesario';
                 if (input.length < 2) return 'El nombre debe tener al menos 2 caracteres';
                 return true;
             }
@@ -132,10 +128,10 @@ async function registro() {
         {
             type: 'input',
             name: 'email',
-            message: 'Email:',
+            message: 'Mail:',
             validate: (input) => {
-                if (!input) return 'El email es requerido';
-                if (!validarEmail(input)) return 'Por favor ingresa un email válido';
+                if (!input) return 'El mail es necesario';
+                if (!validarEmail(input)) return 'Por favor ingresa un mail valido';
                 return true;
             }
         },
@@ -145,7 +141,7 @@ async function registro() {
             message: 'Contraseña:',
             mask: '*',
             validate: (input) => {
-                if (!input) return 'La contraseña es requerida';
+                if (!input) return 'La contraseña es necesaria';
                 if (input.length < 6) return 'La contraseña debe tener al menos 6 caracteres';
                 return true;
             }
@@ -169,7 +165,7 @@ async function registro() {
         // Verificar si el email ya existe
         const existente = await UsuarioRepository.buscarPorEmail(datos.email);
         if (existente) {
-            spinner.fail('Este email ya está registrado');
+            spinner.fail('Este mail ya esta registrado');
             await pausar();
             return await pantallaAuth();
         }
@@ -183,12 +179,12 @@ async function registro() {
             nombre: datos.nombre,
             mail: datos.email,
             password: passwordHash,
-            rol_descripcion: 'usuario' // Rol por defecto
+            rol_descripcion: 'usuario' // Rol defecto
         });
 
         spinner.succeed('¡Cuenta creada exitosamente!');
         mostrarExito(`Tu ID de usuario es: ${nuevoId}`);
-        console.log(chalk.dim('Ahora puedes iniciar sesión con tus credenciales.\n'));
+        console.log(chalk.dim('Ahora puedes iniciar sesion con tus credenciales.\n'));
         
         await pausar();
         return await pantallaAuth();
@@ -201,9 +197,7 @@ async function registro() {
     }
 }
 
-/**
- * Función auxiliar para pausar
- */
+
 async function pausar() {
     await inquirer.prompt([{
         type: 'input',

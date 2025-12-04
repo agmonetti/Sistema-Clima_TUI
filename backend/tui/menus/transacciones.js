@@ -1,6 +1,3 @@
-/**
- * Menú de cuenta corriente y facturación
- */
 import inquirer from 'inquirer';
 import chalk from 'chalk';
 import ora from 'ora';
@@ -10,9 +7,6 @@ import { limpiarPantalla, mostrarExito, mostrarError, mostrarInfo, mostrarCaja }
 import { crearTablaHistorial } from '../utils/tablas.js';
 import { ICONOS, TITULO, colorearSaldo } from '../utils/colores.js';
 
-/**
- * Menú principal de transacciones
- */
 export async function menuTransacciones() {
     while (true) {
         limpiarPantalla();
@@ -46,9 +40,8 @@ export async function menuTransacciones() {
                 break;
         }
     }
-}/**
- * Cargar dinero a la cuenta
- */
+}
+
 async function cargarDinero() {
     limpiarPantalla();
     console.log(TITULO(`\n${ICONOS.exito} CARGAR DINERO\n`));
@@ -101,8 +94,6 @@ async function cargarDinero() {
 
     try {
         const nuevoSaldo = await TransaccionService.cargarDinero(usuario.id, monto);
-        
-        // Actualizar sesión
         session.actualizarSaldo(nuevoSaldo);
         
         spinner.succeed('Recarga exitosa');
@@ -124,9 +115,7 @@ async function cargarDinero() {
 }
 
 
-/**
- * Función auxiliar para pausar
- */
+
 async function pausar() {
     await inquirer.prompt([{
         type: 'input',

@@ -1,6 +1,5 @@
 import pool from '../../config/postgres.js'; 
 
-//Create - Crear usuario
 export async function crearUsuarios({nombre,mail,password,rol_descripcion = 'usuario'}) {
     const client = await pool.connect();
     try {
@@ -28,13 +27,13 @@ export async function crearUsuarios({nombre,mail,password,rol_descripcion = 'usu
             VALUES ($1, $2)
         `;
         await client.query(insertCuentaText, [nuevoUsuarioId, 0]);
-        await client.query('COMMIT'); // Confirmamos la transacción
-        return nuevoUsuarioId; // Devolvemos el ID del nuevo usuario
+        await client.query('COMMIT'); 
+        return nuevoUsuarioId; // Devolvemos el ID del usuario
 
     } catch (error) {
-        await client.query('ROLLBACK'); // Revertimos la transacción en caso de error
+        await client.query('ROLLBACK');
         console.error('Error en transacción crearUsuario:', error.message);
-        throw error; // Re-lanzamos el error para manejarlo afuera
+        throw error; 
     } finally {
         client.release(); // Liberamos el cliente de vuelta al pool
     }
@@ -42,9 +41,6 @@ export async function crearUsuarios({nombre,mail,password,rol_descripcion = 'usu
 
 }
 
-/**
- * READ - Buscar por Email
- */
 export async function buscarPorEmail(email) {
     const SQL = `
         SELECT u.usuario_id, u.nombre, u.mail, u."isActive", uc.contraseña, r.descripcion AS rol
@@ -55,10 +51,9 @@ export async function buscarPorEmail(email) {
     `;
     
     const resultado = await pool.query(SQL, [email]);
-    return resultado.rows[0]; // Retorna el usuario o undefined
+    return resultado.rows[0]; // return el usuario o undefined
 }
 
-// READ - Buscar por Id
 
 export async function buscarPorId(id) {
     const SQL = `
@@ -72,7 +67,6 @@ export async function buscarPorId(id) {
     return resultado.rows[0];
 }
 
-//  READ - Buscar todos los usuarios 
 export async function obtenerTodos() {
     const SQL = `
         SELECT 
@@ -90,7 +84,7 @@ export async function obtenerTodos() {
     return resultado.rows; 
 }
 
-//update de usuarios
+//no implementado en tui
 export async function actualizarUsuario(id, { nombre, mail, rol_id, isActive }) {
 
     const SQL = `
@@ -110,7 +104,7 @@ export async function actualizarUsuario(id, { nombre, mail, rol_id, isActive }) 
     return resultado.rows[0];
 }
 
-//update de contrsaeña
+//no implementado en tui
 export async function actualizarPassword(id, nuevaPasswordHash) {
     const SQL = `
         UPDATE "Usuario_Credencial"
@@ -123,11 +117,11 @@ export async function actualizarPassword(id, nuevaPasswordHash) {
 }
 
 
-// Delete
+// soft delete
 export async function eliminarUsuario(id) {
     const SQL = 'UPDATE "Usuario" SET "isActive" = FALSE WHERE usuario_id = $1';
     const resultado = await pool.query(SQL, [id]);
-    return resultado.rowCount > 0; // Devuelve true si borró algo
+    return resultado.rowCount > 0; // Devuelve true si fue todo ok
 }
 
 export async function revivirUsuario(id) {

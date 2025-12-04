@@ -8,13 +8,10 @@ const PASS = process.env.MONGO_PASSWORD;
 const DB_NAME = 'clima_db';
 
 const URI = `mongodb://${USER}:${PASS}@${HOST}:${PORT}/${DB_NAME}?authSource=admin`;
-// SOLO PRUEBA- DEPS ELIMINAR
 export const connectMongo = async () => {
   try {
     await mongoose.connect(URI);
-    console.log('🚀 [MongoDB] Conexión exitosa a la base de datos:', DB_NAME);
   } catch (error) {
-    console.error('❌ [MongoDB] Error de conexión:', error.message);
     process.exit(1);
   }
 };

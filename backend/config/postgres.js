@@ -13,17 +13,13 @@ const config = {
   idleTimeoutMillis: 30000, // Tiempo antes de cerrar una conexión inactiva
 };
 
-// Creamos el pool
 const pool = new Pool(config);
 
-// Función para probar la conexión inicial - DEPS ELIMINAR
 export const connectPostgres = async () => {
   try {
     const client = await pool.connect();
-    console.log('PostgreSQL- Conexión exitosa a la base de datos:', config.database);
-    client.release(); // 
+    client.release(); 
   } catch (error) {
-    console.error('PostgreSQL - Error de conexión:', error.message);
     process.exit(1);
   }
 };

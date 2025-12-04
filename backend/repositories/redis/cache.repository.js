@@ -1,13 +1,11 @@
 import client from '../../config/redis.js';
 
-// la última medición de un sensor en Redis. Si no se actualiza, expira.
-
 export async function actualizarEstadoSensor(sensorId, { temperatura, humedad }) {
     const key = `sensor:estado:${sensorId}`;
     const timestamp = Date.now();
 
     try {
-        // HSET: permite guardar múltiples campos en la clave
+        // HSET: permite guardar varios campos en la clave
         await client.hSet(key, {
             ultima_t: temperatura.toString(),
             ultima_h: humedad.toString(),
@@ -22,7 +20,6 @@ export async function actualizarEstadoSensor(sensorId, { temperatura, humedad })
     }
 }
 
-//obtener estado sensor.
 export async function obtenerEstadoSensor(sensorId) {
     const key = `sensor:estado:${sensorId}`;
 

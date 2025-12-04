@@ -47,16 +47,11 @@ export async function menuPrincipal() {
             return; 
         }
 
-
-
-        // Ejecutar el submenú correspondiente
+        // Ejecutar el submenu correspondiente
         await ejecutarOpcion(opcion);
     }
 }
 
-/**
- * Obtiene las opciones del menú según el rol del usuario
- */
 function obtenerOpcionesPorRol(rol) {
 
     const opcionesBase = [
@@ -67,7 +62,6 @@ function obtenerOpcionesPorRol(rol) {
         { name: `- Finanzas`, value: 'transacciones' },
     ];
 
-    // Agregar opciones de administración solo para admin
     if (rol === 'admin') {
         opcionesBase.push(
             new inquirer.Separator(),
@@ -89,7 +83,6 @@ function obtenerOpcionesPorRol(rol) {
         );
     }
 
-    // Opciones finales para todos
     console.log('\n')
     opcionesBase.push(
         new inquirer.Separator(chalk.dim('──────────')),
@@ -100,9 +93,7 @@ function obtenerOpcionesPorRol(rol) {
     return opcionesBase;
 }
 
-/**
- * Ejecuta la opción seleccionada
- */
+
 async function ejecutarOpcion(opcion) {
     switch (opcion) {
         case 'sensores':

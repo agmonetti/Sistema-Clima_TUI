@@ -1,6 +1,3 @@
-/**
- * Menú de visualización de mediciones
- */
 import inquirer from 'inquirer';
 import chalk from 'chalk';
 import ora from 'ora';
@@ -9,9 +6,6 @@ import { limpiarPantalla, mostrarExito, mostrarError, mostrarInfo } from '../uti
 import { crearTablaMediciones } from '../utils/tablas.js';
 import { ICONOS, TITULO, colorearTemperatura } from '../utils/colores.js';
 
-/**
- * Menú principal de mediciones
- */
 export async function menuMediciones() {
     while (true) {
         limpiarPantalla();
@@ -46,14 +40,11 @@ export async function menuMediciones() {
     }
 }
 
-/**
- * Ver últimas mediciones de un sensor
- */
 async function verUltimasMediciones() {
     limpiarPantalla();
-    console.log(TITULO(`\n ⏲️ ÚLTIMAS MEDICIONES\n`));
+    console.log(TITULO(`\n ⏲️  ULTIMAS MEDICIONES\n`));
 
-    // Primero listar sensores disponibles
+    // lista de sensores disponibles
     const spinnerSensores = ora('Cargando sensores...').start();
     
     try {
@@ -74,16 +65,17 @@ async function verUltimasMediciones() {
                 name: 'sensorId',
                 message: 'Selecciona un sensor:',
                 loop: false, 
-                pageSize: 12,
+                pageSize: 18,
                 choices:
                     [
+                    new inquirer.Separator(),
+                    {name:'← Volver al menu anterior' , value:'volver'},
+                    new inquirer.Separator(),
                 ...sensores.map((s, index) => ({ 
                     name: `${index + 1}. ${s.nombre} - ${s.ubicacion?.ciudad || 'N/A'}`,
                     value: s._id.toString()
                     })),
-                    new inquirer.Separator(),
-                    {name:'Volver al menu anterior' , value:'volver'},
-                    new inquirer.Separator()
+
                 ]
             }
         ]);
@@ -121,9 +113,7 @@ async function verUltimasMediciones() {
     }
 }
 
-/**
- * Ver reporte de un rango de fechas
- */
+
 async function verReporteRango() {
     limpiarPantalla();
     console.log(TITULO(`\n${ICONOS.info} REPORTE POR RANGO DE FECHAS\n`));
@@ -148,15 +138,16 @@ async function verReporteRango() {
                 name: 'sensorId',
                 message: 'Selecciona un sensor:',
                 loop: false,
-                pageSize: 12,
+                pageSize: 18,
                 choices: [
+                    new inquirer.Separator(),
+                    { name: '← Volver al menu anterior', value: 'volver' },
+                    new inquirer.Separator(),
                     ...sensores.map((s, index) => ({
                         name: `${index + 1}. ${s.nombre} - ${s.ubicacion?.ciudad || 'N/A'}`,
                         value: s._id.toString()
                     })),
-                    new inquirer.Separator(),
-                    { name: 'Volver al menu anterior', value: 'volver' },
-                    new inquirer.Separator()
+
                 ]
             }
         ]);
@@ -190,7 +181,7 @@ async function verReporteRango() {
             spinner.succeed('Reporte generado');
             console.log('\n');
             console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
-            console.log(chalk.bold('  RESUMEN ESTADÍSTICO'));
+            console.log(chalk.bold('  RESUMEN ESTADISTICO'));
             console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
             console.log(`  Temperatura Máxima:   ${colorearTemperatura(reporte.tempMaxima?.toFixed(2))}`);
             console.log(`  Temperatura Mínima:   ${colorearTemperatura(reporte.tempMinima?.toFixed(2))}`);
@@ -207,9 +198,7 @@ async function verReporteRango() {
     }
 }
 
-/**
- * Buscar alertas de temperatura
- */
+
 async function buscarAlertas() {
     limpiarPantalla();
     console.log(TITULO(`\n${ICONOS.advertencia}  BUSCAR ALERTAS\n`));
@@ -234,14 +223,14 @@ async function buscarAlertas() {
                 name: 'sensorId',
                 message: 'Selecciona un sensor:',
                 loop: false,
-                pageSize: 12,
+                pageSize: 26,
                 choices: [
                     ...sensores.map((s, index) => ({
                         name: `${index + 1}. ${s.nombre} - ${s.ubicacion?.ciudad || 'N/A'}`,
                         value: s._id.toString()
                     })),
                     new inquirer.Separator(),
-                    { name: 'Volver al menu anterior', value: 'volver' },
+                    { name: '← Volver al menu anterior', value: 'volver' },
                     new inquirer.Separator()
                 ]
             }
@@ -301,9 +290,7 @@ async function buscarAlertas() {
     }
 }
 
-/**
- * Valida formato de fecha
- */
+
 function validarFecha(input) {
     const regex = /^\d{4}-\d{2}-\d{2}$/;
     if (!regex.test(input)) return 'Formato inválido. Usa YYYY-MM-DD';
@@ -312,9 +299,6 @@ function validarFecha(input) {
     return true;
 }
 
-/**
- * Función auxiliar para pausar
- */
 async function pausar() {
     await inquirer.prompt([{
         type: 'input',

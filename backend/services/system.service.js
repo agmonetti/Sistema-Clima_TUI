@@ -65,7 +65,7 @@ export async function verificarSaludSistema() {
             error: mongoError 
         },
         redis: { 
-            name: 'Redis (Caché)', 
+            name: 'Redis (Cache)', 
             status: redisStatus, 
             latency: redisLatency, 
             error: redisError 

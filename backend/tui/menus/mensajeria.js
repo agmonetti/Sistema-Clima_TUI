@@ -1,6 +1,3 @@
-/**
- * Menu de mensajeria / chat
- */
 import inquirer from 'inquirer';
 import chalk from 'chalk';
 import ora from 'ora';
@@ -11,9 +8,6 @@ import { limpiarPantalla, mostrarExito, mostrarError, mostrarInfo, mostrarSepara
 import { crearTablaConversaciones } from '../utils/tablas.js';
 import { ICONOS, TITULO } from '../utils/colores.js';
 
-/**
- * Menu principal de mensajeria
- */
 export async function menuMensajeria() {
     while (true) {
         limpiarPantalla();
@@ -62,9 +56,6 @@ export async function menuMensajeria() {
     }
 }
 
-/**
- * Listar conversaciones del usuario
- */
 async function listarConversaciones() {
     limpiarPantalla();
     console.log(TITULO(`\n${ICONOS.mensaje} MIS CONVERSACIONES\n`));
@@ -90,9 +81,6 @@ async function listarConversaciones() {
     }
 }
 
-/**
- * Iniciar un chat privado con otro usuario
- */
 async function iniciarChatPrivado() {
     limpiarPantalla();
     console.log(TITULO(`\n${ICONOS.usuario} INICIAR CHAT PRIVADO\n`));
@@ -147,9 +135,7 @@ async function iniciarChatPrivado() {
     }
 }
 
-/**
- * Crear un grupo de chat
- */
+
 async function crearGrupo() {
     limpiarPantalla();
     console.log(TITULO(`\n${ICONOS.mensaje} CREAR GRUPO\n`));
@@ -189,7 +175,7 @@ async function crearGrupo() {
                 pageSize: 12,
                 choices: [
                     new inquirer.Separator(),
-                    { name: 'Volver al manu anterior', value: 'volver' },
+                    { name: '← Volver al manu anterior', value: 'volver' },
                     new inquirer.Separator(),
                     ...otrosUsuarios.map(u => ({
                         name: `${u.nombre} (${u.mail})`,
@@ -230,9 +216,6 @@ async function crearGrupo() {
     }
 }
 
-/**
- * Ver mensajes de una conversacion
- */
 async function verMensajes() {
     limpiarPantalla();
     console.log(TITULO(`\n${ICONOS.info} VER MENSAJES\n`));
@@ -261,7 +244,7 @@ async function verMensajes() {
                 pageSize: 12,
                 choices: [
                     new inquirer.Separator(),
-                    { name: 'Volver al menu anterior', value: 'volver' },
+                    { name: '← Volver al menu anterior', value: 'volver' },
                     new inquirer.Separator(),
                     new inquirer.Separator('── Chats ──'),
                     ...conversaciones.map(c => {
@@ -321,9 +304,7 @@ async function verMensajes() {
     }
 }
 
-/**
- * Enviar mensaje a una conversacion
- */
+
 async function enviarMensaje() {
     limpiarPantalla();
     console.log(TITULO(`\n${ICONOS.exito} ENVIAR MENSAJE\n`));
@@ -350,7 +331,7 @@ async function enviarMensaje() {
                 pageSize: 10,
                 choices: [
                     new inquirer.Separator(),
-                    { name: 'Volver al menu anterior', value: 'volver' },
+                    { name: '← Volver al menu anterior', value: 'volver' },
                     new inquirer.Separator(),
                     new inquirer.Separator('── Chats ──'),
                     ...conversaciones.map(c => {
@@ -401,9 +382,7 @@ async function enviarMensaje() {
         await pausar();
     }
 }
-/**
- * Funcion auxiliar para pausar
- */
+
 async function pausar() {
     await inquirer.prompt([{
         type: 'input',

@@ -8,8 +8,8 @@ export async function procesarMedicion(datos) {
         timestamp: datos.timestamp || new Date()
     };
 
-    // guardar en el histórico primero.
-    // Si esto falla, detenemos todo (throw error). No tiene sentido actualizar el caché si el dato no se guardó.
+    // guardamos en el historico primero.
+    // Si esto falla, detenemos todo el flujo.
     const medicionGuardada = await MedicionRepository.crearMedicion(medicionParaGuardar);
 
     //actualizamos el estado de redis, si es que la ingesta se concreto

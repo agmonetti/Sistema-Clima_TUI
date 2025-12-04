@@ -2,14 +2,14 @@ import Medicion from '../../models/mongo/Medicion.js';
 import mongoose from 'mongoose';
 import Sensor from '../../models/mongo/Sensor.js';
 
-// 1- insertar datos
+
 export async function crearMedicion(datos) {
     try {
-        // Mongoose simplifica todo: .create() valida y guarda.
+        //.create() valida y guarda.
         const nuevaMedicion = await Medicion.create(datos);
         return nuevaMedicion;
     } catch (error) {
-        throw new Error(`Error al guardar medición: ${error.message}`);
+        throw new Error(`Error al guardar la medicion: ${error.message}`);
     }
 }
 
@@ -24,20 +24,19 @@ export async function obtenerEstadoSensor(sensorId) {
             estado: sensor.configuracion.estado_sensor 
         };
     } catch (error) {
-        throw new Error(`Error obteniendo estado del sensor: ${error.message}`);
+        throw new Error(`Error obteniendo el estado del sensor: ${error.message}`);
     }
 }
 
-//2- obtener el reporte de un sensor en un rango de fechas
 export async function obtenerReporteRango(sensorId, fechaInicio, fechaFin, variable ='temperatura') {
    try {
-        // 1. Definimos qué campos vamos a calcular según la variable
+        // 1. Definimos que campos vamos a usar segun la variable elegida
         let groupStage = {
             _id: null,
             cantMediciones: { $sum: 1 }
         };
 
-        // Lógica para agregar campos al grupo dinámicamente
+        // logica para agregar campos al grupo
         const agregarCampos = (tipo) => {
             if (tipo === 'temperatura' || tipo === 'ambas') {
                 groupStage.tempPromedio = { $avg: "$temperatura" };
@@ -68,7 +67,7 @@ export async function obtenerReporteRango(sensorId, fechaInicio, fechaFin, varia
             {
                 $group: groupStage 
             },
-            // Proyecto final para redondear
+            // proyecto final para redondear
             {
                 $project: {
                     _id: 0,
@@ -87,7 +86,7 @@ export async function obtenerReporteRango(sensorId, fechaInicio, fechaFin, varia
             }
         ]);
 
-        // Mongo devuelve un array. Si está vacío, retornamos null.
+        // si el array esta vacio, retornamos null.
         return reporte.length > 0 ? reporte[0] : null;
 
     } catch (error) {
@@ -95,7 +94,7 @@ export async function obtenerReporteRango(sensorId, fechaInicio, fechaFin, varia
     }
 }
 
-//3- sirve para obtener las ultimas n mediciones de un sensor
+
 export async function obtenerUltimasMediciones(sensorId, limite = 20) {
     try {
         const historial = await Medicion.find({ sensor_id: sensorId })
@@ -108,7 +107,6 @@ export async function obtenerUltimasMediciones(sensorId, limite = 20) {
     }
 }
 
-//4- buscar alertas de temperatura
 export async function buscarAlertas({ sensorIds, variable = 'temperatura',umbral, operador = 'mayor', fechaInicio, fechaFin, limite = 50 }) {
     try {
 
@@ -117,7 +115,7 @@ export async function buscarAlertas({ sensorIds, variable = 'temperatura',umbral
             throw new Error(`Variable no valida. Existen: ${camposValidos.join(' o ')}`);
         }
 
-        //filtro para que entienda mongo
+        //filtro < o >
         let queryValor = {};
         if (operador === 'mayor') {
             queryValor = { $gt: umbral }; 
@@ -193,11 +191,11 @@ export async function generarReportePeriodico({ ciudad, anio, tipoReporte, mes }
         let fechaInicio, fechaFin;
 
         if(mes){ // equivale a !null
-            // Mes específico
+            // mes especifico
             fechaInicio = new Date(Date.UTC(anio, mes - 1, 1, 0, 0, 0));
             fechaFin = new Date(Date.UTC(anio, mes, 0, 23, 59, 59, 999));
         } else {
-            // Todo el año
+            // todo el año
             fechaInicio = new Date(Date.UTC(anio, 0, 1, 0, 0, 0));
             fechaFin = new Date(Date.UTC(anio, 11, 31, 23, 59, 59, 999));
         }
@@ -218,7 +216,7 @@ export async function generarReportePeriodico({ ciudad, anio, tipoReporte, mes }
                 } 
             },
             
-            // 2.  Unimos cada medición con los datos de su sensor para saber la ciudad
+            // 2.  Unimos cada medicion con los datos de su sensor para saber la ciudad
             {
                 $lookup: {
                     from: 'sensores',       // Nombre de la colección destino

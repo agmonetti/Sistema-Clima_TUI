@@ -11,12 +11,6 @@ if (!JWT_SECRET) {
     process.exit(1); 
 }
 
-/**
- * Lógica de REGISTRO
- * 1. Encriptar contraseña.
- * 2. Llamar al repositorio para guardar en Postgres (Transacción).
- * 3. Retornar el usuario creado (sin la contraseña).
- */
 export async function register(datosUsuario) {
     const { nombre, mail, password} = datosUsuario; //ignoramos el rol para prevenir las inyecciones
 
@@ -41,12 +35,6 @@ export async function register(datosUsuario) {
     return { id: nuevoId, nombre, mail };
 }
 
-/**
- * Lógica de LOGIN
- * 1. Buscar usuario por email.
- * 2. Comparar contraseña (hash vs plano).
- * 3. Generar Token JWT.
- */
 export async function login({ mail, password }) {
     // Buscamos el usuario
     const usuario = await UsuarioRepository.buscarPorEmail(mail);

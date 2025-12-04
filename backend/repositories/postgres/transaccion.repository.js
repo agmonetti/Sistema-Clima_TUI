@@ -1,12 +1,11 @@
 import pool from '../../config/postgres.js';
 
-// 1 -  proceso de crear solicutd de proceso con factura y actualizar saldo
-
+// proceso de crear solicutd de proceso con factura y actualizar saldo
 export async function crearSolicitudConFactura({ usuarioId, procesoIdMongo, costo }) {
     const client = await pool.connect();
 
     try {
-        await client.query('BEGIN'); // INICIO TRANSACCIÓN
+        await client.query('BEGIN'); // Inicio de la transaccion
 
         // verificamos quetiene saldo y es suficiente
         const saldoQuery = `
@@ -66,13 +65,13 @@ export async function crearSolicitudConFactura({ usuarioId, procesoIdMongo, cost
     }
 }
 
-// 2- rembolso en caso de que falle la solicitud del prose
+//  rembolso en caso de que falle la solicitud del prose
 export async function reembolsarSolicitud(solicitudId, usuarioId, costo, motivoError) {
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
 
-        // devolvemos el dinero
+        // devolvemos la plata gastada
         const updateSaldo = `
             UPDATE "Cuentas_Corrientes"
             SET "saldoActual" = "saldoActual" + $1
@@ -99,7 +98,7 @@ export async function reembolsarSolicitud(solicitudId, usuarioId, costo, motivoE
     }
 }
 
-// 3- el usuario consulta el historial de sus procesos
+//  el usuario consulta el historial de sus procesos
 export async function obtenerHistorialUsuario(usuarioId) {
     const SQL = `
         SELECT 
@@ -129,7 +128,7 @@ export async function obtenerSaldo(usuarioId) {
         WHERE usuario_id = $1
     `;
     const result = await pool.query(query, [usuarioId]);
-    // Si no tiene cuenta, retornamos 0
+    // Si no tiene cuenta, return 0
     return result.rows[0] ? parseFloat(result.rows[0].saldoActual) : 0;
 }
 
@@ -139,7 +138,7 @@ export async function recargarSaldo(usuarioId, monto) {
     try {
         await client.query('BEGIN');
 
-        // 1. Actualizar el saldo (Sumar)
+        // 1. Actualizar el saldo 
         const updateQuery = `
             UPDATE "Cuentas_Corrientes"
             SET "saldoActual" = "saldoActual" + $1
@@ -154,7 +153,7 @@ export async function recargarSaldo(usuarioId, monto) {
         
         const nuevoSaldo = resUpdate.rows[0].saldoActual;
 
-        // 2. Registrar el movimiento (Auditoría)
+        // 2. Registramos el movimiento 
         const insertMovimiento = `
             INSERT INTO "Movimientos_CC" (cuenta_id, monto, "fechaMovimiento")
             VALUES (
@@ -176,19 +175,19 @@ export async function recargarSaldo(usuarioId, monto) {
     }
 }
 
-// 4- guardar el resultado exitoso de un proceso
+// guardar el resultado exitoso de una solicitud de proceso
 export async function guardarResultadoExitoso(solicitudId, resultadoObj) {
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
 
-        // 1. Marcar la solicitud principal como completada
+        // 1. Marcamos la solicitud principal como completada
         await client.query(
             'UPDATE "Solicitud_Proceso" SET "isCompleted" = TRUE WHERE solicitud_id = $1', 
             [solicitudId]
         );
 
-        // 2. Insertar el registro en el historial con el JSON del resultado
+        // 2. Insertamos el registro en el historial con el JSON del resultado
         // Convertimos el objeto JS a String para guardarlo en la columna TEXT
         const resultadoStr = JSON.stringify(resultadoObj);
         
@@ -203,7 +202,7 @@ export async function guardarResultadoExitoso(solicitudId, resultadoObj) {
 
     } catch (error) {
         await client.query('ROLLBACK');
-        throw new Error(`Error guardando resultado: ${error.message}`);
+        throw new Error(`Error guardando el resultado: ${error.message}`);
     } finally {
         client.release();
     }

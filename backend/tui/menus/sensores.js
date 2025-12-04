@@ -1,7 +1,3 @@
-/**
- * Menú de gestión de sensores
- * CRUD completo con permisos por rol
- */
 import inquirer from 'inquirer';
 import chalk from 'chalk';
 import ora from 'ora';
@@ -11,9 +7,6 @@ import { limpiarPantalla, mostrarExito, mostrarError, mostrarInfo, mostrarSepara
 import { crearTablaSensores } from '../utils/tablas.js';
 import { ICONOS, TITULO } from '../utils/colores.js';
 
-/**
- * Menú principal de sensores
- */
 export async function menuSensores() {
     while (true) {
         limpiarPantalla();
@@ -69,9 +62,6 @@ function obtenerOpcionesSensores() {
     return opciones;
 }
 
-/**
- * Lista todos los sensores con paginación básica
- */
 async function listarSensores() {
     limpiarPantalla();
     const spinner = ora('Cargando sensores...').start();
@@ -94,9 +84,7 @@ async function listarSensores() {
     }
 }
 
-/**
- * Crea un nuevo sensor
- */
+
 async function crearSensor() {
     limpiarPantalla();
     console.log(TITULO(`\n${ICONOS.exito} CREAR NUEVO SENSOR\n`));
@@ -205,9 +193,6 @@ async function crearSensor() {
     }
 }
 
-/**
- * Busca un sensor por nombre o ciudad
- */
 async function buscarSensor() {
     limpiarPantalla();
     console.log(TITULO(`\n${ICONOS.info} BUSCAR SENSOR\n`));
@@ -262,9 +247,6 @@ async function buscarSensor() {
 }
 
 
-/**
- * Elimina un sensor (solo admin)
- */
 async function eliminarSensor() {
     limpiarPantalla();
     console.log(TITULO(`\nELIMINAR SENSOR\n`));
@@ -316,9 +298,7 @@ async function eliminarSensor() {
     }
 }
 
-/**
- * Función auxiliar para pausar
- */
+
 async function pausar() {
     await inquirer.prompt([{
         type: 'input',

@@ -22,7 +22,7 @@ export async function solicitarProceso({ usuarioId, procesoId, parametros }) {
 
     console.log(`Cobrado. Solicitud #${ticket.solicitud_id}. Encolando para aprobación...`);
 
-    // 2. Guardamos los parámetros en Redis temporalmente 
+    // 2. Guardamos los parametros en Redis temporalmente 
     const paramsKey = `PARAMS_SOLICITUD:${ticket.solicitud_id}`;
     await redisClient.setEx(paramsKey, 604800, JSON.stringify(parametros));
 
@@ -57,10 +57,9 @@ export async function listarPendientesParaTecnico(criterio = 'antiuedad_asc') {
         }
     }));
 
-    // 2. complejidad
+
     const pesoComplejidad = { 'ALTA': 3, 'MEDIA': 2, 'BAJA': 1, 'DESCONOCIDA': 0 };
 
-    // 3. ordenado pesonalizado
     listaCompleta.sort((a, b) => {
         switch (criterio) {
             case 'antiguedad_asc': 
