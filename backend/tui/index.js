@@ -14,6 +14,20 @@ import mongoose from 'mongoose';
 import pool from '../config/postgres.js';
 import redisClient from '../config/redis.js';
 
+const variablesRequeridas = [
+    'PG_HOST', 'PG_USER', 'PG_PASSWORD', 'PG_DATABASE',
+    'MONGO_HOST', 'MONGO_USER', 'MONGO_PASSWORD',
+    'REDIS_HOST',
+    'JWT_SECRET'
+];
+
+const faltantes = variablesRequeridas.filter(key => !process.env[key]);
+
+if (faltantes.length > 0) {
+    console.error('Faltan variables de entorno requeridas:');
+    console.error(faltantes.map(f => `   - ${f}`).join('\n'));
+    process.exit(1);
+}
 
 function mostrarBanner() {
     clear();

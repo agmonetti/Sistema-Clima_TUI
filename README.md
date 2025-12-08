@@ -44,15 +44,16 @@ cd tp-poliglota-tui
 # Configurar variables de entorno
 cp .env.example .env
 
-# Levantar servicios
-docker-compose up -d
+# Levantar la infraestructura, conectar las bases de datos e iniciar la interfaz en un solo paso
+docker compose run --rm backend
 
 ## Uso
 
 **Usuarios disponibles por defecto:**
-- Admin: `admin@sistema.com` 
-- Usuario: `usuario@test.com` 
-- Técnico: `tecnico@sistema.com` 
+- Admin: `admin@sistema.com`  `admin123`
+- Usuario: `usuario@test.com` `admin123`
+- Técnico: `tecnico@sistema.com` `admin123`
+
 
 ## Sobre proyecto
 
