@@ -1,7 +1,5 @@
-version: '3.8'
-
 services:
-  # 1. Backend (Ahora es la App de Consola)
+  # 1. Backend
   backend:
     build: 
       context: ./backend
