@@ -51,16 +51,19 @@ docker compose run --rm backend
 
 ## Uso
 
+
 **Usuarios disponibles por defecto:**
-- Admin: `admin@sistema.com`  `admin123`
-- Usuario: `usuario@test.com` `admin123`
-- Técnico: `tecnico@sistema.com` `admin123`
 
+| Rol      | Email                  | Contraseña |
+|----------|------------------------|------------|
+| Admin    | admin@sistema.com      | admin123   |
+| Usuario  | usuario@test.com       | admin123   |
+| Técnico  | tecnico@sistema.com    | admin123   |
 
-## Sobre proyecto
+## Proyecto
 
-Proyecto académico: Universidad Argentina de la Empresa (UADE)
-Materia: Ingenieria de Datos II (No Relacionales)
+**Proyecto académico**: Universidad Argentina de la Empresa (UADE)
 
+**Materia**: Ingenieria de Datos II (No Relacionales)
 
 **Autor**: Agustín Monetti
