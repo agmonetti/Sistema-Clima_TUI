@@ -28,7 +28,7 @@ export async function solicitarProceso({ usuarioId, procesoId, parametros }) {
 
     return {
         status: 'pending',
-        mensaje: 'Solicitud recibida. Esperando aprobación técnica.',
+        mensaje: 'Solicitud recibida. Esperando aprobacion del tecnico.',
         ticket: {
             solicitud_id: ticket.solicitud_id,
             servicio: proceso.nombre,
@@ -39,7 +39,7 @@ export async function solicitarProceso({ usuarioId, procesoId, parametros }) {
 }
 
 // lista de procesos pendientes
-export async function listarPendientesParaTecnico(criterio = 'antiuedad_asc') {
+export async function listarPendientesParaTecnico(criterio = 'antiguedad_asc') {
     const pendientesSQL = await TransaccionRepository.obtenerSolicitudesPendientes();
 
     // SQL tiene el ID del proceso, mongo tiene el nombre, juntamos todo
@@ -50,7 +50,7 @@ export async function listarPendientesParaTecnico(criterio = 'antiuedad_asc') {
                 ...p, 
                 nombre_proceso: procesoMongo.nombre, 
                 codigo_proceso: procesoMongo.codigo,
-                complejidad: procesoMongo.complejidad || 'BAJA' // Default a BAJA si no tiene
+                complejidad: procesoMongo.complejidad || 'BAJA' // Default caso de q no tenga
             };
         } catch (e) {
             return { ...p, nombre_proceso: 'Proceso Desconocido', codigo_proceso: 'UNKNOWN', complejidad: 'BAJA' };
