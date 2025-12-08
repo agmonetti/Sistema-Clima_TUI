@@ -47,6 +47,8 @@ cp .env.example .env
 # Levantar la infraestructura, conectar las bases de datos e iniciar la interfaz en un solo paso
 docker compose run --rm backend
 
+```
+
 ## Uso
 
 **Usuarios disponibles por defecto:**
@@ -57,7 +59,8 @@ docker compose run --rm backend
 
 ## Sobre proyecto
 
-Proyecto académico - Universidad Argentina de la Empresa - Materia Ingenieria de Datos II (No Relacionales)
----
+Proyecto académico: Universidad Argentina de la Empresa (UADE)
+Materia: Ingenieria de Datos II (No Relacionales)
+
 
 **Autor**: Agustín Monetti
