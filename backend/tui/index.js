@@ -30,7 +30,7 @@ function mostrarBanner() {
     
     console.log(
         boxen(
-            chalk.white.bold('🌤️  Sistema de Monitoreo Climático\n') +
+            chalk.white.bold('🌤️  Sistema de Monitoreo del clima\n') +
             chalk.dim('Interfaz de Terminal Interactiva (TUI)\n\n') +
             chalk.cyan('Versión: 1.0.0'),
             {
