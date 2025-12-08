@@ -186,7 +186,7 @@ async function verReporteRango() {
             console.log(`  Temperatura Máxima:   ${colorearTemperatura(reporte.tempMaxima?.toFixed(2))}`);
             console.log(`  Temperatura Mínima:   ${colorearTemperatura(reporte.tempMinima?.toFixed(2))}`);
             console.log(`  Temperatura Promedio: ${colorearTemperatura(reporte.tempPromedio?.toFixed(2))}`);
-            console.log(`  Desviación Estándar:  ${reporte.stdDev?.toFixed(2) || 'N/A'}`);
+            console.log(`  Desviación Estándar:  ${reporte.tempStdDev ?? 'N/A'}`);
             console.log(`  Total Mediciones:     ${reporte.cantMediciones}`);
             console.log(chalk.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'));
         }

@@ -76,12 +76,12 @@ export async function obtenerReporteRango(sensorId, fechaInicio, fechaFin, varia
                     tempPromedio: { $round: [{ $ifNull: ["$tempPromedio", 0] }, 2] },
                     tempMaxima: { $ifNull: ["$tempMaxima", null] }, 
                     tempMinima: { $ifNull: ["$tempMinima", null] },
-                    tempStdDev: { $round: [{ $ifNull: ["$tempDesviacion", 0] }, 2] },
+                    tempStdDev: { $round: [{ $ifNull: ["$tempStdDev", 0] }, 2] },
                     
                     humPromedio: { $round: [{ $ifNull: ["$humPromedio", 0] }, 2] },
                     humMaxima: { $ifNull: ["$humMaxima", null] },
                     humMinima: { $ifNull: ["$humMinima", null] },
-                    humStdDev: { $round: [{ $ifNull: ["$humDesviacion", 0] }, 2] }
+                    humStdDev: { $round: [{ $ifNull: ["$humStdDev", 0] }, 2] }
                 }
             }
         ]);
@@ -244,7 +244,9 @@ export async function generarReportePeriodico({ ciudad, anio, tipoReporte, mes }
                     humPromedio: { $avg: '$humedad' },
                     tempMax: { $max: '$temperatura' },
                     tempMin: { $min: '$temperatura' },
-                    cantMediciones: { $sum: 1 }
+                    cantMediciones: { $sum: 1 },
+                    tempStdDev: { $stdDevPop: '$temperatura' },
+                    humStdDev: { $stdDevPop: '$humedad' },
                 }
             },
 
@@ -259,6 +261,8 @@ export async function generarReportePeriodico({ ciudad, anio, tipoReporte, mes }
                     ciudad: '$_id.ciudad',
                     tempPromedio: { $round: ['$tempPromedio', 2] }, 
                     humPromedio: { $round: ['$humPromedio', 2] },
+                    tempStdDev: { $round: ['$tempStdDev', 2] },
+                    humStdDev: { $round: ['$humStdDev', 2] },
                     tempMax: 1,
                     tempMin: 1,
                     cantMediciones: 1
@@ -286,9 +290,11 @@ export async function generarReportePeriodico({ ciudad, anio, tipoReporte, mes }
                 PERIODO: etiquetaPeriodo,
                 CIUDAD: r.ciudad,
                 TEMP_PROM: r.tempPromedio + '°C',
+                TEMP_MAX: r.tempMax + '°C',
+                TEMP_MIN: r.tempMin + '°C',
                 HUM_PROM: r.humPromedio + '%',
-                MAX: r.tempMax + '°C',
-                MIN: r.tempMin + '°C',
+                DESV_TEMP: (r.tempStdDev || 0) + '°C',
+                DESV_HUM: (r.humStdDev || 0) + '%',
                 CANT: r.cantMediciones
             };
         });

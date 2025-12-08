@@ -10,9 +10,6 @@ import { limpiarPantalla, mostrarExito, mostrarError, mostrarInfo, mostrarCaja, 
 import { crearTablaProcesos, crearTablaHistorial } from '../utils/tablas.js';
 import { ICONOS, TITULO, colorearSaldo, colorearTemperatura } from '../utils/colores.js';
 
-/**
- * Menú principal de procesos
- */
 export async function menuProcesos() {
     while (true) {
         limpiarPantalla();
@@ -59,12 +56,10 @@ export async function menuProcesos() {
     }
 }
 
-/**
- * Ver catálogo de procesos disponibles
- */
+
 async function verCatalogo() {
     limpiarPantalla();
-    console.log(TITULO(`\n${ICONOS.menu} CATÁLOGO DE PROCESOS\n`));
+    console.log(TITULO(`\n${ICONOS.menu} CATALOGO DE PROCESOS\n`));
 
     const spinner = ora('Cargando catálogo...').start();
 
@@ -86,9 +81,7 @@ async function verCatalogo() {
     }
 }
 
-/**
- * Solicitar un proceso
- */
+
 async function solicitarProceso() {
     limpiarPantalla();
     console.log(TITULO(`\n${ICONOS.proceso} SOLICITAR PROCESO\n`));
@@ -109,10 +102,6 @@ async function solicitarProceso() {
 
         const usuario = session.getUser();
         console.log(chalk.dim(`\nTu saldo actual: ${colorearSaldo(usuario.saldoActual)}\n`));
-
-        // Seleccionar proceso
-
-    
         console.log((chalk.dim(` ↑ Para desplazarse ↓ \n`)));
         
 
@@ -139,14 +128,14 @@ async function solicitarProceso() {
 
         const procesoSeleccionado = procesos.find(p => p._id.toString() === procesoId);
         
-        // Verificar saldo
+       
         if (usuario.saldoActual < procesoSeleccionado.costo) {
             mostrarError(`Saldo insuficiente. Necesitas $${procesoSeleccionado.costo} y tienes $${usuario.saldoActual}`);
             await pausar();
             return;
         }
 
-        // Obtener parámetros según el proceso
+        
         const parametros = await obtenerParametrosProceso(procesoSeleccionado.codigo, sensores);
         
         
@@ -156,7 +145,7 @@ async function solicitarProceso() {
             return;
         }
 
-        // Confirmar ejecución
+        
         const { confirmar } = await inquirer.prompt([
             {
                 type: 'confirm',
@@ -172,7 +161,7 @@ async function solicitarProceso() {
             return;
         }
 
-        // Ejecutar proceso
+        
 const spinnerEjec = ora('Enviando solicitud...').start();
 
         const resultado = await TransaccionService.solicitarProceso({
@@ -185,7 +174,7 @@ const spinnerEjec = ora('Enviando solicitud...').start();
         if (resultado.status === 'pending') {
             spinnerEjec.info('Solicitud creada correctamente'); 
             
-            // Actualizar saldo en sesión (porque ya se cobró)
+            // Actualizar saldo
             const nuevoSaldo = await TransaccionService.getSaldo(usuario.id);
             session.actualizarSaldo(nuevoSaldo);
 
@@ -225,9 +214,7 @@ const spinnerEjec = ora('Enviando solicitud...').start();
     }
 }
 
-/**
- * Obtiene los parámetros necesarios según el código del proceso
- */
+
 async function obtenerParametrosProceso(codigo, sensores) {
    if (codigo === 'REPORTE_PERIODICO') {
         
@@ -288,7 +275,7 @@ async function obtenerParametrosProceso(codigo, sensores) {
                 const { mesIndex } = await inquirer.prompt([
                     {
                         type: 'list',
-                        name: 'mesIndex', // Guardamos el número (1-12)
+                        name: 'mesIndex',
                         message: 'Selecciona el mes:',
                         loop: false,
                         pageSize: 20,
@@ -317,7 +304,7 @@ async function obtenerParametrosProceso(codigo, sensores) {
             }
         }
 
-        // 4. Año
+        // 3. Año
         const { anio } = await inquirer.prompt([
             {
                 type: 'input',
@@ -360,7 +347,6 @@ async function obtenerParametrosProceso(codigo, sensores) {
 
     let respuestas = {};
 
-    // 1. Hacemos las preguntas según el caso
     switch (codigo) {
         case 'INFORME_MAXIMAS_MINIMAS':
         case 'INFORME_PROMEDIOS':
@@ -533,7 +519,7 @@ function formatearResultado(data) {
         const fInicio = m.fechaInicio ? new Date(m.fechaInicio).toLocaleDateString() : '-';
         const fFin = m.fechaFin ? new Date(m.fechaFin).toLocaleDateString() : '-';
 
-        output += chalk.cyan.bold('PARÁMETROS UTILIZADOS:\n');
+        output += chalk.cyan.bold('PARAMETROS UTILIZADOS:\n');
         output += chalk.cyan('─────────────────────────────────────\n');
         output += `   \nSensor: ${chalk.white(m.sensorNombre || m.sensorId)}\n`;
         if (m.variable) output += `Variable: ${chalk.yellow(m.variable.toUpperCase())}\n`;
@@ -550,7 +536,7 @@ function formatearResultado(data) {
     // Si tiene metadatos o es un array envuelto, extraemos lo real
     if (data._metadatos || data._esArrayOriginalmente) {
         if (data._esArrayOriginalmente) {
-            datosPuros = data.datos; // Es una lista (ej: Alertas)
+            datosPuros = data.datos; 
         } else {
             datosPuros = { ...data };
             delete datosPuros._metadatos;
@@ -563,19 +549,19 @@ function formatearResultado(data) {
         
         if (datosPuros.length === 0) return output + chalk.yellow('No se encontraron resultados.');
         // Si es una lista, mostramos resumen 
-        return output + `Se encontraron ${chalk.bold(datosPuros.length)} registros.`;
+        return output;
     }
     
     // Si es objeto
     const metricas = Object.entries(datosPuros)
         .map(([key, value]) => {
-            if (key === '_id') return null; // Ignorar ID de mongo null
+            if (key === '_id') return null; 
             
             // Formatear claves
-            let label = key.replace(/([A-Z])/g, ' $1').trim(); // camelCase a Texto
+            let label = key.replace(/([A-Z])/g, ' $1').trim(); 
             label = label.charAt(0).toUpperCase() + label.slice(1);
 
-            // Formatear valores
+           
             let valDisplay = value;
             if (typeof value === 'number') {
                 valDisplay = value.toFixed(2);

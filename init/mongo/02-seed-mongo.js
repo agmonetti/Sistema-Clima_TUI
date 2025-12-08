@@ -7,7 +7,7 @@ db.proceso.deleteMany({});
 db.conversaciones.deleteMany({});
 
 // ------------------------------------------------------------
-// 1. CATÁLOGO DE PROCESOS (hardcoded)
+// 1. CATÁLOGO DE PROCESOS 
 // ------------------------------------------------------------
 print("⏳ Insertando procesos...");
 db.proceso.insertMany([
@@ -22,7 +22,7 @@ db.proceso.insertMany([
 print("✅ Procesos insertados.");
 
 // ------------------------------------------------------------
-// 2. SENSORES (25 sensores hardcoded, 5 por zona)
+// 2. SENSORES 
 // ------------------------------------------------------------
 print("⏳ Insertando sensores...");
 var resultadoSensores = db.sensores.insertMany([
@@ -65,31 +65,28 @@ var sensorIds = Object.values(resultadoSensores.insertedIds);
 print("✅ 25 Sensores insertados.");
 
 // ------------------------------------------------------------
-// 3. MEDICIONES 25 por cada sensor.
+// 3. MEDICIONES 
 // ------------------------------------------------------------
 print("⏳ Generando mediciones");
 
 var mediciones = [];
-var fechaBase = new Date("2023-01-01T10:00:00Z");
+var fechaInicio = new Date("2020-01-01T00:00:00Z").getTime();
+var fechaFin = new Date("2025-12-31T23:59:59Z").getTime();
 
 sensorIds.forEach(sensorId => {
-    // Generamos 25 mediciones distribuidas mes a mes
-    for (let i = 0; i < 25; i++) {
+    for (let i = 0; i < 150; i++) {
         
-        var fechaMedicion = new Date(fechaBase);
-        fechaMedicion.setMonth(fechaBase.getMonth() + i);
-        
-        // variamos aleatoriamente los dias (1-28) y horas
-        fechaMedicion.setDate(Math.floor(Math.random() * 28) + 1);
-        fechaMedicion.setHours(Math.floor(Math.random() * 24));
+        var tiempoAleatorio = Math.random() * (fechaFin - fechaInicio);
+        var fechaMedicion = new Date(fechaInicio + tiempoAleatorio);
 
-        // valores de temp y humedad
-        var tempRandom = (Math.random() * (35 - 5) + 5).toFixed(2);
+        // Temp: entre 5°C y 40°C
+        var tempRandom = (Math.random() * (40 - 5) + 5).toFixed(2);
+        // Humedad: entre 30% y 90%
         var humRandom = (Math.random() * (90 - 30) + 30).toFixed(2);
 
-        // alertas de temp extremas
-        if (i === 15) {
-            tempRandom = 45.50; 
+        // Alerta Ocasional
+        if (Math.random() < 0.01) {
+            tempRandom = 47.50; 
         }
 
         mediciones.push({
@@ -102,4 +99,4 @@ sensorIds.forEach(sensorId => {
 });
 
 db.mediciones.insertMany(mediciones);
-print(`✅ ${mediciones.length} Mediciones insertadas exitosamente.`);
+print(`✅ ${mediciones.length} Mediciones insertadas.`);

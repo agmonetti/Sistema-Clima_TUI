@@ -16,6 +16,8 @@ export async function menuGestionTecnica() {
                 type: 'list',
                 name: 'criterio',
                 message: '¿Como queres ordenar la cola de procesos?',
+                pageSize: 15,
+                loop: false,
                 choices: [
                     new inquirer.Separator(),   
                     { name: '- MAYOR complejidad', value: 'complejidad_desc' },
