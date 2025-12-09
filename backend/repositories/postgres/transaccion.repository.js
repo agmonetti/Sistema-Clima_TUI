@@ -252,7 +252,7 @@ export async function obtenerSolicitudesPendientes() {
             sp.solicitud_id, 
             sp."fechaSolicitud", 
             u.nombre as usuario_nombre,
-            u.mail as usuario_mail,  -- <--- AGREGAR ESTA LÍNEA
+            u.mail as usuario_mail,  
             sp.proceso_id as proceso_id_mongo
         FROM "Solicitud_Proceso" sp
         JOIN "Usuario" u ON sp.usuario_id = u.usuario_id
