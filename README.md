@@ -17,6 +17,12 @@ Aplicación que gestiona sensores de temperatura/humedad utilizando tres bases d
 - **MongoDB**: Mediciones de sensores y procesos
 - **Redis**: Caché de estado en tiempo real
 
+
+| Menu Usuario  | Estado Sistema |
+| :---: | :---: |
+| <img src="imgs/menuInicioUsuario.png" width="500"> | <img src="imgs/estadoSistema.png" width="500"> |
+
+
 ## Características
 
 - Sistema de autenticación con roles (usuario, técnico, admin)
@@ -26,6 +32,11 @@ Aplicación que gestiona sensores de temperatura/humedad utilizando tres bases d
 - Sistema de mensajería entre usuarios
 - Reportes estadísticos (promedios, máximas, mínimas, desviación)
 - Caché inteligente de consultas frecuentes
+
+| Catalogo Procesos  | Proceso Aprobado |
+| :---: | :---: |
+| <img src="imgs/catalogoProcesos.png" width="500"> | <img src="imgs/procesoAprobado.png" width="500"> |
+
 
 ## Stack
 
